@@ -26,5 +26,7 @@ urlpatterns = [
     path('customers/', include('customers.urls')),
     path('lending/', include('lending.urls')),
     path('invoices/', include('invoices.urls')),
+    path('employees/', include('employees.urls')),
+    path('salary/', include('salary.urls')),
     path('', RedirectView.as_view(url='/login/', permanent=False)),
 ] 

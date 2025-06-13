@@ -9,7 +9,10 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def product_list(request):
+    search_query = request.GET.get('search', '')
     products = Product.objects.all()
+    if search_query:
+        products = products.filter(name__icontains=search_query)
     low_stock_threshold = 10
     near_expiry_days = 7
     today = timezone.now().date()
@@ -19,7 +22,7 @@ def product_list(request):
             alerts.append(f"Low stock: {product.name} ({product.quantity} left)")
         if product.expiry_date and (product.expiry_date - today).days <= near_expiry_days:
             alerts.append(f"Near expiry: {product.name} (expires {product.expiry_date})")
-    return render(request, 'inventory/product_list.html', {'products': products, 'alerts': alerts})
+    return render(request, 'inventory/product_list.html', {'products': products, 'alerts': alerts, 'search_query': search_query})
 
 @login_required
 def product_create(request):

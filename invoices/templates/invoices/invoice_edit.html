@@ -1,7 +1,7 @@
 {% extends 'accounts/base.html' %}
 {% load static %}
 
-{% block title %}Edit Invoice | ARSAFA SOLUTION{% endblock %}
+{% block title %}Billing | ARSAFA SOLUTION{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -9,7 +9,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title mb-0">Edit Invoice {{ invoice.invoice_number }}</h4>
+                    <h4 class="card-title mb-0">Billing {{ invoice.invoice_number }}</h4>
                     <div>
                         <form method="post" class="d-inline">
                             {% csrf_token %}
@@ -28,19 +28,9 @@
                         <div class="col-md-6">
                             <p><strong>Customer:</strong> {{ invoice.customer.name }}</p>
                             <p><strong>Invoice Date:</strong> {{ invoice.date|date:"Y-m-d" }}</p>
-                            <p><strong>Due Date:</strong> {{ invoice.due_date|date:"Y-m-d" }}</p>
                         </div>
                         <div class="col-md-6 text-end">
-                            <p><strong>Status:</strong> 
-                                {% if invoice.status == 'paid' %}
-                                    <span class="badge bg-success">Paid</span>
-                                {% elif invoice.status == 'unpaid' %}
-                                    <span class="badge bg-warning">Unpaid</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Overdue</span>
-                                {% endif %}
-                            </p>
-                            <p><strong>Total Amount:</strong> ${{ invoice.amount|floatformat:2 }}</p>
+                            <p><strong>Total Amount:</strong> ৳{{ invoice.amount|floatformat:2 }}</p>
                         </div>
                     </div>
 
@@ -100,8 +90,8 @@
                                 <tr>
                                     <td>{{ item.product.name }}</td>
                                     <td>{{ item.quantity }}</td>
-                                    <td>${{ item.unit_price|floatformat:2 }}</td>
-                                    <td>${{ item.amount|floatformat:2 }}</td>
+                                    <td>৳{{ item.unit_price|floatformat:2 }}</td>
+                                    <td>৳{{ item.amount|floatformat:2 }}</td>
                                     <td>
                                         <form method="post" class="d-inline">
                                             {% csrf_token %}
@@ -118,7 +108,7 @@
                             <tfoot>
                                 <tr>
                                     <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                    <td><strong>${{ invoice.amount|floatformat:2 }}</strong></td>
+                                    <td><strong>৳{{ invoice.amount|floatformat:2 }}</strong></td>
                                     <td></td>
                                 </tr>
                             </tfoot>
@@ -126,6 +116,11 @@
                     </div>
 
                     <div class="text-end mt-4">
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="checkout" value="1">
+                            <button type="submit" class="btn btn-success">Checkout</button>
+                        </form>
                         <a href="{% url 'invoice_list' %}" class="btn btn-secondary">Back to List</a>
                         <a href="{% url 'invoice_detail' invoice.id %}" class="btn btn-info">View Invoice</a>
                     </div>

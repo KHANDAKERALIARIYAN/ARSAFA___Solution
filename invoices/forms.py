@@ -11,13 +11,10 @@ class InvoiceForm(forms.ModelForm):
     date = forms.DateField(
         widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
     )
-    due_date = forms.DateField(
-        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
-    )
 
     class Meta:
         model = Invoice
-        fields = ['customer', 'date', 'due_date']
+        fields = ['customer', 'date']
 
 class InvoiceItemForm(forms.ModelForm):
     product = forms.ModelChoiceField(

@@ -25,71 +25,202 @@
             </div>
             <a href="{% url 'logout' %}" class="btn btn-outline-danger ms-3">Logout</a>
         </div>
-        <div class="row g-4">
-            <div class="col-md-4 col-lg-2">
-                <a href="/inventory/" class="text-decoration-none">
-                    <div class="card nav-card text-center p-3">
-                        <div class="card-body">
-                            <div class="card-icon">
-                                <i class="fas fa-box"></i>
-                            </div>
-                            <h5 class="card-title">Inventory</h5>
-                            <p class="card-text">Manage products and stock</p>
-                        </div>
+        <div class="row mb-4 g-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-2" style="font-size:2rem;color:#22c55e;"><i class="fas fa-arrow-up"></i></div>
+                        <div class="text-muted">Total Sales Today</div>
+                        <div class="fs-3 fw-bold">${{ summary.total_sales_today|floatformat:0 }}</div>
+                        <div class="text-success small">↑ {{ summary.sales_growth }}%</div>
                     </div>
-                </a>
+                </div>
             </div>
-            <div class="col-md-4 col-lg-2">
-                <a href="{% url 'sales_report' %}" class="text-decoration-none">
-                    <div class="card nav-card text-center p-3">
-                        <div class="card-body">
-                            <div class="card-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h5 class="card-title">Sales</h5>
-                            <p class="card-text">Track and report sales</p>
-                        </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-2" style="font-size:2rem;color:#f59e42;"><i class="fas fa-box"></i></div>
+                        <div class="text-muted">Low Stock Items</div>
+                        <div class="fs-3 fw-bold">{{ summary.low_stock_items }}</div>
+                        <div class="text-warning small">+{{ summary.low_stock_change }} from yesterday</div>
                     </div>
-                </a>
+                </div>
             </div>
-            <div class="col-md-4 col-lg-2">
-                <a href="{% url 'invoice_list' %}" class="text-decoration-none">
-                    <div class="card nav-card text-center p-3">
-                        <div class="card-body">
-                            <div class="card-icon">
-                                <i class="fas fa-file-invoice"></i>
-                            </div>
-                            <h5 class="card-title">Invoices</h5>
-                            <p class="card-text">Manage invoices</p>
-                        </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-2" style="font-size:2rem;color:#2563eb;"><i class="fas fa-file-invoice"></i></div>
+                        <div class="text-muted">Pending Invoices</div>
+                        <div class="fs-3 fw-bold">{{ summary.pending_invoices }}</div>
+                        <div class="text-danger small">{{ summary.pending_invoices_change }} from yesterday</div>
                     </div>
-                </a>
+                </div>
             </div>
-            <div class="col-md-4 col-lg-2">
-                <a href="{% url 'customer_dashboard' %}" class="text-decoration-none">
-                    <div class="card nav-card text-center p-3">
-                        <div class="card-body">
-                            <div class="card-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <h5 class="card-title">Customers</h5>
-                            <p class="card-text">Manage customers</p>
-                        </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-2" style="font-size:2rem;color:#a855f7;"><i class="fas fa-credit-card"></i></div>
+                        <div class="text-muted">Credit Balance</div>
+                        <div class="fs-3 fw-bold">${{ summary.credit_balance|floatformat:0 }}</div>
+                        <div class="text-success small">↑ {{ summary.credit_growth }}%</div>
                     </div>
-                </a>
+                </div>
             </div>
-            <div class="col-md-4 col-lg-2">
-                <a href="{% url 'lending_dashboard' %}" class="text-decoration-none">
-                    <div class="card nav-card text-center p-3">
-                        <div class="card-body">
-                            <div class="card-icon">
-                                <i class="fas fa-hand-holding-usd"></i>
+        </div>
+        <div class="row mt-4 g-4">
+            <div class="col-md-7">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Recent Activities</h5>
+                        <ul class="list-group list-group-flush">
+                            {% for act in recent_activities %}
+                            <li class="list-group-item d-flex align-items-center">
+                                <span class="me-3" style="font-size:1.2rem;">
+                                    {% if act.type == 'invoice' %}<i class="fas fa-file-invoice text-primary"></i>{% endif %}
+                                    {% if act.type == 'payment' %}<i class="fas fa-dollar-sign text-success"></i>{% endif %}
+                                    {% if act.type == 'stock' %}<i class="fas fa-box text-warning"></i>{% endif %}
+                                    {% if act.type == 'customer' %}<i class="fas fa-user-plus text-info"></i>{% endif %}
+                                </span>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">{{ act.message }}</div>
+                                    <div class="text-muted small">{{ act.detail }} • {{ act.time }}</div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Quick Actions</h5>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <a href="/inventory/" class="btn btn-light w-100 py-3 border"><i class="fas fa-box me-2"></i>Add Product</a>
                             </div>
-                            <h5 class="card-title">Lending</h5>
-                            <p class="card-text">Credit & lending</p>
+                            <div class="col-6">
+                                <a href="{% url 'invoice_create' %}" class="btn btn-light w-100 py-3 border"><i class="fas fa-file-invoice me-2"></i>New Invoice</a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{% url 'sales_report' %}" class="btn btn-light w-100 py-3 border"><i class="fas fa-chart-line me-2"></i>View Reports</a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{% url 'lending_dashboard' %}" class="btn btn-light w-100 py-3 border"><i class="fas fa-credit-card me-2"></i>Lending</a>
+                            </div>
                         </div>
                     </div>
-                </a>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4 mt-2">
+            <div class="col-12">
+                <div class="row g-4">
+                    <div class="col-md-2">
+                        <a href="/inventory/" class="text-decoration-none">
+                            <div class="card nav-card text-center p-3">
+                                <div class="card-body">
+                                    <div class="card-icon">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <h5 class="card-title">Inventory</h5>
+                                    <p class="card-text">Manage products and stock</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'sales_report' %}" class="text-decoration-none">
+                            <div class="card nav-card text-center p-3">
+                                <div class="card-body">
+                                    <div class="card-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <h5 class="card-title">Sales</h5>
+                                    <p class="card-text">Track and report sales</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'invoice_list' %}" class="text-decoration-none">
+                            <div class="card nav-card text-center p-3">
+                                <div class="card-body">
+                                    <div class="card-icon">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </div>
+                                    <h5 class="card-title">Invoices</h5>
+                                    <p class="card-text">Manage invoices</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'customer_dashboard' %}" class="text-decoration-none">
+                            <div class="card nav-card text-center p-3">
+                                <div class="card-body">
+                                    <div class="card-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <h5 class="card-title">Customers</h5>
+                                    <p class="card-text">Manage customers</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'lending_dashboard' %}" class="text-decoration-none">
+                            <div class="card nav-card text-center p-3">
+                                <div class="card-body">
+                                    <div class="card-icon">
+                                        <i class="fas fa-hand-holding-usd"></i>
+                                    </div>
+                                    <h5 class="card-title">Lending</h5>
+                                    <p class="card-text">Credit & lending</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'invoice_create' %}" class="text-decoration-none">
+                            <div class="card nav-card text-center p-3">
+                                <div class="card-body">
+                                    <div class="card-icon">
+                                        <i class="fas fa-cash-register"></i>
+                                    </div>
+                                    <h5 class="card-title">Billing</h5>
+                                    <p class="card-text">Create customer bills</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'employee_list' %}" class="text-decoration-none">
+                            <div class="card nav-card text-center p-3">
+                                <div class="card-body">
+                                    <div class="card-icon">
+                                        <i class="fas fa-id-badge"></i>
+                                    </div>
+                                    <h5 class="card-title">Employee Info</h5>
+                                    <p class="card-text">Manage employees</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'salary_calculation' %}" class="text-decoration-none">
+                            <div class="card nav-card text-center p-3">
+                                <div class="card-body">
+                                    <div class="card-icon">
+                                        <i class="fas fa-calculator"></i>
+                                    </div>
+                                    <h5 class="card-title">Salary Calculation</h5>
+                                    <p class="card-text">Calculate salary</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

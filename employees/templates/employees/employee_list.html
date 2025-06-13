@@ -1,0 +1,37 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Employee Info | ARSAFA SOLUTION{% endblock %}
+{% block header %}Employee Info{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <a href="{% url 'employee_create' %}" class="btn btn-success mb-3"><i class="fas fa-plus me-1"></i> Add Employee</a>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>NID</th>
+                <th>Designation</th>
+                <th>Phone</th>
+                <th>Salary</th>
+                <th>Joining Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emp in employees %}
+            <tr>
+                <td>{{ emp.name }}</td>
+                <td>{{ emp.nid }}</td>
+                <td>{{ emp.designation }}</td>
+                <td>{{ emp.phone }}</td>
+                <td>{{ emp.salary }}</td>
+                <td>{{ emp.joining_date }}</td>
+                <td>
+                    <a href="{% url 'employee_update' emp.pk %}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'employee_delete' emp.pk %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

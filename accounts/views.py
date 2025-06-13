@@ -2,6 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from inventory.models import Product
+from invoices.models import Invoice
+from sales.models import Sale
+from customers.models import Customer
+from lending.models import Lending
+from django.utils import timezone
+from django.db.models import Sum
 
 # Create your views here.
 
@@ -21,7 +28,45 @@ def custom_login(request):
 
 @login_required
 def admin_dashboard(request):
-    return render(request, 'accounts/admin_dashboard.html')
+    today = timezone.now().date()
+    # Total sales today
+    total_sales_today = Sale.objects.filter(timestamp__date=today).aggregate(total=Sum('total'))['total'] or 0
+    # Low stock items
+    low_stock_threshold = 10
+    low_stock_items = Product.objects.filter(quantity__lte=low_stock_threshold).count()
+    # Pending invoices
+    pending_invoices = Invoice.objects.filter(status='unpaid').count()
+    # Credit balance
+    credit_balance = Lending.objects.aggregate(total=Sum('amount'))['total'] or 0
+    # Recent activities (last 5)
+    recent_activities = []
+    # New invoice
+    last_invoice = Invoice.objects.order_by('-created_at').first()
+    if last_invoice:
+        recent_activities.append({'type': 'invoice', 'message': 'New invoice created', 'detail': last_invoice.customer.name, 'time': last_invoice.created_at.strftime('%b %d, %H:%M')})
+    # Payment received (last paid invoice)
+    last_paid = Invoice.objects.filter(status='paid').order_by('-updated_at').first()
+    if last_paid:
+        recent_activities.append({'type': 'payment', 'message': 'Payment received', 'detail': last_paid.customer.name, 'time': last_paid.updated_at.strftime('%b %d, %H:%M')})
+    # Stock updated (last product)
+    last_product = Product.objects.order_by('-input_date').first()
+    if last_product and last_product.input_date:
+        recent_activities.append({'type': 'stock', 'message': 'Stock updated', 'detail': last_product.name, 'time': last_product.input_date.strftime('%b %d, %Y')})
+    # New customer
+    last_customer = Customer.objects.order_by('-created_at').first()
+    if last_customer:
+        recent_activities.append({'type': 'customer', 'message': 'New customer added', 'detail': last_customer.name, 'time': last_customer.created_at.strftime('%b %d, %H:%M')})
+    summary = {
+        'total_sales_today': total_sales_today,
+        'sales_growth': 0,  # You can calculate growth if you want
+        'low_stock_items': low_stock_items,
+        'low_stock_change': 0,  # You can calculate change if you want
+        'pending_invoices': pending_invoices,
+        'pending_invoices_change': 0,  # You can calculate change if you want
+        'credit_balance': credit_balance,
+        'credit_growth': 0,  # You can calculate growth if you want
+    }
+    return render(request, 'accounts/admin_dashboard.html', {'summary': summary, 'recent_activities': recent_activities})
 
 def custom_login_redirect(request):
     return redirect('/admin/login/')

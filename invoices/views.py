@@ -45,7 +45,6 @@ def invoice_create(request):
                 invoice.invoice_number = f'INV-{str(last_number + 1).zfill(3)}'
             else:
                 invoice.invoice_number = 'INV-001'
-            
             invoice.save()
             return redirect('invoice_edit', invoice_id=invoice.id)
     else:
@@ -82,6 +81,11 @@ def invoice_edit(request, invoice_id):
             
             messages.success(request, 'Item removed successfully.')
             return redirect('invoice_edit', invoice_id=invoice.id)
+        elif 'checkout' in request.POST:
+            invoice.status = 'paid'
+            invoice.save()
+            messages.success(request, 'Checkout complete. Invoice marked as paid.')
+            return redirect('invoice_detail', invoice_id=invoice.id)
         elif 'update_status' in request.POST:
             new_status = request.POST.get('status')
             if new_status in dict(Invoice.STATUS_CHOICES):
