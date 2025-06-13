@@ -1,0 +1,12 @@
+{% extends 'accounts/base.html' %}
+{% block title %}{% if form.instance.pk %}Edit Lending{% else %}Add Lending{% endif %} | ARSAFA SOLUTION{% endblock %}
+{% block header %}{% if form.instance.pk %}Edit Lending{% else %}Add Lending{% endif %}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save</button>
+        <a href="{% url 'lending_dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %} 

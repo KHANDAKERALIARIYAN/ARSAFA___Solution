@@ -1,0 +1,53 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% block title %}Inventory Management | ARSAFA SOLUTION{% endblock %}
+{% block header %}Inventory Management{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    {% if alerts %}
+        <div class="alert alert-warning">
+            <ul>
+                {% for alert in alerts %}
+                    <li>{{ alert }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    <a href="{% url 'product_create' %}" class="btn btn-success mb-3">Add Product</a>
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Buying Price</th>
+                <th>Selling Price</th>
+                <th>Expiry Date</th>
+                <th>Input Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.category }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>{{ product.unit_price }}</td>
+                <td>{{ product.buying_price }}</td>
+                <td>{{ product.selling_price }}</td>
+                <td>{{ product.expiry_date }}</td>
+                <td>{{ product.input_date }}</td>
+                <td>{{ product.get_status_display }}</td>
+                <td>
+                    <a href="{% url 'product_update' product.pk %}" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

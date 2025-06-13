@@ -1,0 +1,31 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Sale Detail | ARSAFA SOLUTION{% endblock %}
+{% block header %}Sale Detail{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h4>Invoice: {{ sale.invoice_id }}</h4>
+    <p>Date: {{ sale.timestamp|date:'Y-m-d H:i' }}</p>
+    <p>Total: <strong>{{ sale.total }}</strong></p>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in sale.items.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unit_price }}</td>
+                <td>{{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'sales_list' %}" class="btn btn-secondary">Back to Sales List</a>
+</div>
+{% endblock %} 
