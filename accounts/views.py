@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from inventory.models import Product
-from invoices.models import Invoice
+from invoices.models import Invoice, POS
 from sales.models import Sale
 from customers.models import Customer
 from lending.models import Lending
@@ -29,15 +29,15 @@ def custom_login(request):
 @login_required
 def admin_dashboard(request):
     today = timezone.now().date()
-    # Total sales today
-    total_sales_today = Sale.objects.filter(timestamp__date=today).aggregate(total=Sum('total'))['total'] or 0
+    # Total sales today (paid POS)
+    total_sales_today = POS.objects.filter(status='paid', date__date=today).aggregate(total=Sum('total'))['total'] or 0
     # Low stock items
     low_stock_threshold = 10
     low_stock_items = Product.objects.filter(quantity__lte=low_stock_threshold).count()
     # Pending invoices
     pending_invoices = Invoice.objects.filter(status='unpaid').count()
-    # Credit balance
-    credit_balance = Lending.objects.aggregate(total=Sum('amount'))['total'] or 0
+    # Credit balance (unpaid POS)
+    credit_balance = POS.objects.filter(status='unpaid').aggregate(total=Sum('total'))['total'] or 0
     # Recent activities (last 5)
     recent_activities = []
     # New invoice

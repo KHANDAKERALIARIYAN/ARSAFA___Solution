@@ -100,7 +100,7 @@
                                 <a href="/inventory/" class="btn btn-light w-100 py-3 border"><i class="fas fa-box me-2"></i>Add Product</a>
                             </div>
                             <div class="col-6">
-                                <a href="{% url 'invoice_create' %}" class="btn btn-light w-100 py-3 border"><i class="fas fa-file-invoice me-2"></i>New Invoice</a>
+                                <a href="{% url 'pos_create' %}" class="btn btn-light w-100 py-3 border"><i class="fas fa-cash-register me-2"></i>New Sale</a>
                             </div>
                             <div class="col-6">
                                 <a href="{% url 'sales_report' %}" class="btn btn-light w-100 py-3 border"><i class="fas fa-chart-line me-2"></i>View Reports</a>
@@ -143,6 +143,19 @@
                         </a>
                     </div>
                     <div class="col-md-2">
+                        <a href="{% url 'pos_list' %}" class="text-decoration-none">
+                            <div class="card nav-card text-center p-3">
+                                <div class="card-body">
+                                    <div class="card-icon">
+                                        <i class="fas fa-cash-register"></i>
+                                    </div>
+                                    <h5 class="card-title">POS</h5>
+                                    <p class="card-text">Point of Sale</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-2">
                         <a href="{% url 'invoice_list' %}" class="text-decoration-none">
                             <div class="card nav-card text-center p-3">
                                 <div class="card-body">
@@ -177,19 +190,6 @@
                                     </div>
                                     <h5 class="card-title">Lending</h5>
                                     <p class="card-text">Credit & lending</p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-2">
-                        <a href="{% url 'invoice_create' %}" class="text-decoration-none">
-                            <div class="card nav-card text-center p-3">
-                                <div class="card-body">
-                                    <div class="card-icon">
-                                        <i class="fas fa-cash-register"></i>
-                                    </div>
-                                    <h5 class="card-title">Billing</h5>
-                                    <p class="card-text">Create customer bills</p>
                                 </div>
                             </div>
                         </a>

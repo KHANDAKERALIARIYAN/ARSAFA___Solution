@@ -1,0 +1,124 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+
+{% block title %}Sale {{ pos.pos_number }} | ARSAFA SOLUTION{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <div class="text-center mb-2">
+                <h2 style="font-weight:bold;">ARSAFA Supermarket</h2>
+                <div>123 Market Road, Dhaka | Phone: 018xx-xxxxxx</div>
+            </div>
+            <hr>
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <b>Customer Info</b><br>
+                    Name: {{ pos.customer_name }}<br>
+                    Phone: {{ pos.contact_number }}
+                    {% if pos.email %}<br>Email: {{ pos.email }}{% endif %}
+                </div>
+                <div class="col-sm-6 text-end">
+                    <b>Sale #:</b> {{ pos.pos_number }}<br>
+                    <b>Date:</b> {{ pos.date|date:"d-M-Y H:i" }}<br>
+                    <b>Status:</b> 
+                    {% if pos.status == 'paid' %}
+                        <span class="badge bg-success">Paid</span>
+                    {% else %}
+                        <span class="badge bg-warning">Unpaid</span>
+                    {% endif %}
+                </div>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in pos.items.all %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>৳{{ item.unit_price|floatformat:2 }}</td>
+                        <td>৳{{ item.total|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-end"><b>Subtotal:</b></td>
+                        <td>৳{{ pos.subtotal|floatformat:2 }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="text-end"><b>Discount:</b></td>
+                        <td>
+                            <form method="post" style="display:flex;align-items:center;gap:0.5rem;">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_discount" value="1">
+                                <input id="discount-input" type="number" name="discount" class="form-control" style="width:100px;display:inline-block;vertical-align:middle;" value="{{ pos.discount|floatformat:2 }}" step="0.01" min="0" max="{{ pos.subtotal }}" {% if pos.status == 'paid' %}readonly{% endif %} required>
+                                {% if pos.status != 'paid' %}
+                                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                {% endif %}
+                            </form>
+                            {% if messages %}
+                                {% for message in messages %}
+                                    {% if message.tags == 'success' %}
+                                        <div class="text-success small">{{ message }}</div>
+                                    {% elif message.tags == 'error' %}
+                                        <div class="text-danger small">{{ message }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="text-end"><b>Total:</b></td>
+                        <td><b>৳{{ pos.total|floatformat:2 }}</b></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <div class="mt-4">
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="update_status" value="1">
+                    <div class="btn-group" role="group" aria-label="Payment Status">
+                        <button type="submit" name="status" value="paid" class="btn btn-success {% if pos.status == 'paid' %}active{% endif %}">Paid</button>
+                        <button type="submit" name="status" value="unpaid" class="btn btn-warning {% if pos.status == 'unpaid' %}active{% endif %}">Unpaid</button>
+                    </div>
+                </form>
+            </div>
+            <div class="mt-4">
+                Thank you for shopping with ARSAFA!<br>
+                <b>Authorized Signature:</b> ______________________
+            </div>
+            <div class="text-end mt-3">
+                <button onclick="window.print()" class="btn btn-primary">Print Receipt</button>
+                {% if pos.status == 'unpaid' %}
+                <a href="{% url 'pos_edit' pos.id %}" class="btn btn-success">Complete Payment</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .badge {
+        display: none !important;
+    }
+    .card {
+        border: none !important;
+    }
+    .card-body {
+        padding: 0 !important;
+    }
+}
+</style>
+{% endblock %} 
