@@ -30,6 +30,7 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        white-space: nowrap;
     }
     
     .dashboard-subtitle {
@@ -367,7 +368,7 @@
         <div class="dashboard-header fade-in">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h1 class="dashboard-title">📦 Inventory Management Dashboard</h1>
+                    <h1 class="dashboard-title">📦 Inventory Management</h1>
                     <p class="dashboard-subtitle">Manage your product inventory with real-time insights and analytics</p>
                 </div>
                 <div class="col-md-4 text-end">
@@ -437,8 +438,10 @@
                             <td>{% if product.input_date %}{{ product.input_date }}{% else %}-{% endif %}</td>
                             <td><span class="status-badge status-{{ product.status }}">{{ product.get_status_display }}</span></td>
                             <td>
-                                <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
-                                <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
