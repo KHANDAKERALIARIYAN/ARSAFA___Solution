@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .models import POS, POSItem, Invoice, InvoiceItem
 from customers.models import Customer
@@ -6,6 +6,21 @@ from lending.models import Lending
 from sales.models import Sale, SaleItem
 from decimal import Decimal
 from django.utils import timezone
+
+@receiver(post_save, sender=POSItem)
+@receiver(post_save, sender=InvoiceItem)
+def decrease_stock_on_item_creation(sender, instance, created, **kwargs):
+    if created:
+        product = instance.product
+        product.quantity -= instance.quantity
+        product.save()
+
+@receiver(post_delete, sender=POSItem)
+@receiver(post_delete, sender=InvoiceItem)
+def increase_stock_on_item_deletion(sender, instance, **kwargs):
+    product = instance.product
+    product.quantity += instance.quantity
+    product.save()
 
 @receiver(post_save, sender=POS)
 def update_modules_on_pos_save(sender, instance, created, **kwargs):
