@@ -3,7 +3,24 @@
 
 {% block title %}Admin Dashboard | ARSAFA SOLUTION{% endblock %}
 {% block header %}{% endblock %}
-{% block navbar %}{% endblock navbar %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container-fluid" style="max-width:1200px;">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="logout-container ms-auto">
+                <a href="{% url 'logout' %}" class="logout-btn" title="Logout">
+                    <i class="fas fa-sign-out-alt logout-icon"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endblock navbar %}
 
 {% block content %}
 <style>
