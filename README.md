@@ -1,4 +1,4 @@
-# Inventory Management System (IMS)
+# ARSAFA SOLUTION
 
 A Django-based inventory management system with admin login, inventory tracking, sales, invoicing, customer management, lending, email reminders, and analytics dashboard.
 

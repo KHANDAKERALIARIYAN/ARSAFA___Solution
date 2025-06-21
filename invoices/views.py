@@ -10,24 +10,57 @@ from .forms import InvoiceForm, InvoiceItemForm, POSForm, POSItemForm
 from datetime import timedelta
 from django.urls import reverse
 from inventory.models import Product
+from customers.models import Customer
 from django.views.decorators.http import require_GET
 from decimal import Decimal
 
 @login_required
 def invoice_list(request):
     invoices = Invoice.objects.all()
+    paid_pos_sales = POS.objects.filter(status='paid')
+
+    combined_list = []
     
-    # Calculate statistics
-    total_invoices = invoices.count()
-    paid_invoices = invoices.filter(status='paid').count()
-    unpaid_invoices = invoices.filter(status='unpaid').count()
-    overdue_invoices = invoices.filter(status='overdue').count()
+    # Process standard invoices
+    for inv in invoices:
+        combined_list.append({
+            'id': inv.id,
+            'number': inv.invoice_number,
+            'customer_name': inv.customer.name,
+            'amount': inv.amount,
+            'status': inv.status,
+            'date': inv.date,
+            'due_date': inv.due_date,
+            'type': 'invoice'
+        })
+
+    # Process paid POS sales
+    for pos in paid_pos_sales:
+        combined_list.append({
+            'id': pos.id,
+            'number': pos.pos_number,
+            'customer_name': pos.customer_name,
+            'amount': pos.total,
+            'status': 'paid',  # POS sales in this list are always paid
+            'date': pos.date.date(),
+            'due_date': pos.date.date(),
+            'type': 'pos'
+        })
     
-    total_amount = invoices.aggregate(Sum('amount'))['amount__sum'] or 0
-    amount_received = invoices.filter(status='paid').aggregate(Sum('amount'))['amount__sum'] or 0
+    # Sort the combined list by date, most recent first
+    combined_list.sort(key=lambda x: x['date'], reverse=True)
+
+    # Calculate statistics from the combined list
+    total_invoices = len(combined_list)
+    paid_invoices = sum(1 for item in combined_list if item['status'] == 'paid')
+    unpaid_invoices = sum(1 for item in combined_list if item['status'] == 'unpaid')
+    overdue_invoices = sum(1 for item in combined_list if item['status'] == 'overdue')
+    
+    total_amount = sum(item['amount'] for item in combined_list)
+    amount_received = sum(item['amount'] for item in combined_list if item['status'] == 'paid')
     
     context = {
-        'invoices': invoices,
+        'invoices': combined_list,
         'total_invoices': total_invoices,
         'paid_invoices': paid_invoices,
         'unpaid_invoices': unpaid_invoices,
@@ -74,7 +107,7 @@ def invoice_edit(request, invoice_id):
                 invoice.amount = invoice.items.aggregate(Sum('amount'))['amount__sum'] or 0
                 invoice.save()
                 
-                messages.success(request, 'Item added successfully.')
+                # messages.success(request, 'Item added successfully.')
                 return redirect('invoice_edit', invoice_id=invoice.id)
         elif 'delete_item' in request.POST:
             item_id = request.POST.get('item_id')
@@ -84,19 +117,19 @@ def invoice_edit(request, invoice_id):
             invoice.amount = invoice.items.aggregate(Sum('amount'))['amount__sum'] or 0
             invoice.save()
             
-            messages.success(request, 'Item removed successfully.')
+            # messages.success(request, 'Item removed successfully.')
             return redirect('invoice_edit', invoice_id=invoice.id)
         elif 'checkout' in request.POST:
             invoice.status = 'paid'
             invoice.save()
-            messages.success(request, 'Checkout complete. Invoice marked as paid.')
+            # messages.success(request, 'Checkout complete. Invoice marked as paid.')
             return redirect('invoice_detail', invoice_id=invoice.id)
         elif 'update_status' in request.POST:
             new_status = request.POST.get('status')
             if new_status in dict(Invoice.STATUS_CHOICES):
                 invoice.status = new_status
                 invoice.save()
-                messages.success(request, 'Invoice status updated successfully.')
+                # messages.success(request, 'Invoice status updated successfully.')
                 return redirect('invoice_list')
     
     item_form = InvoiceItemForm()
@@ -168,7 +201,7 @@ def pos_edit(request, pos_id):
                 pos.subtotal = pos.items.aggregate(Sum('total'))['total__sum'] or 0
                 pos.save()
                 
-                messages.success(request, 'Item added successfully.')
+                # messages.success(request, 'Item added successfully.')
                 return redirect('pos_edit', pos_id=pos.id)
         elif 'delete_item' in request.POST:
             item_id = request.POST.get('item_id')
@@ -178,7 +211,7 @@ def pos_edit(request, pos_id):
             pos.subtotal = pos.items.aggregate(Sum('total'))['total__sum'] or 0
             pos.save()
             
-            messages.success(request, 'Item removed successfully.')
+            # messages.success(request, 'Item removed successfully.')
             return redirect('pos_edit', pos_id=pos.id)
         elif 'update_discount' in request.POST:
             discount = request.POST.get('discount', 0)
@@ -187,18 +220,20 @@ def pos_edit(request, pos_id):
                 if discount < 0:
                     raise ValueError('Discount cannot be negative')
                 if discount > pos.subtotal:
-                    messages.error(request, 'Discount cannot exceed subtotal.')
+                    # messages.error(request, 'Discount cannot exceed subtotal.')
+                    pass
                 else:
                     pos.discount = discount
                     pos.save()
-                    messages.success(request, 'Discount updated successfully.')
+                    # messages.success(request, 'Discount updated successfully.')
             except (ValueError, InvalidOperation):
-                messages.error(request, 'Invalid discount amount.')
+                # messages.error(request, 'Invalid discount amount.')
+                pass
             return redirect('pos_edit', pos_id=pos.id)
         elif 'make_payment' in request.POST:
             pos.status = 'paid'
             pos.save()
-            messages.success(request, 'Payment completed successfully.')
+            # messages.success(request, 'Payment completed successfully.')
             return redirect('pos_detail', pos_id=pos.id)
     
     item_form = POSItemForm()
@@ -220,19 +255,21 @@ def pos_detail(request, pos_id):
                 if discount < 0:
                     raise ValueError('Discount cannot be negative')
                 if discount > pos.subtotal:
-                    messages.error(request, 'Discount cannot exceed subtotal.')
+                    # messages.error(request, 'Discount cannot exceed subtotal.')
+                    pass
                 else:
                     pos.discount = discount
                     pos.save()
-                    messages.success(request, 'Discount updated successfully.')
+                    # messages.success(request, 'Discount updated successfully.')
             except (ValueError, InvalidOperation):
-                messages.error(request, 'Invalid discount amount.')
+                # messages.error(request, 'Invalid discount amount.')
+                pass
         elif 'update_status' in request.POST:
             new_status = request.POST.get('status')
             if new_status in dict(POS.STATUS_CHOICES):
                 pos.status = new_status
                 pos.save()
-                messages.success(request, f'Payment status updated to {new_status.title()}.')
+                # messages.success(request, f'Payment status updated to {new_status.title()}.')
         return redirect('pos_detail', pos_id=pos.id)
     return render(request, 'invoices/pos_detail.html', {'pos': pos})
 
@@ -241,7 +278,7 @@ def pos_delete(request, pos_id):
     pos = get_object_or_404(POS, id=pos_id)
     if request.method == 'POST':
         pos.delete()
-        messages.success(request, 'POS transaction deleted successfully.')
+        # messages.success(request, 'POS transaction deleted successfully.')
         return redirect('pos_list')
     return redirect('pos_list')
 
@@ -249,6 +286,11 @@ def pos_delete(request, pos_id):
 def get_product_price(request, product_id):
     try:
         product = Product.objects.get(id=product_id)
-        return JsonResponse({'price': float(product.selling_price)})
+        # Use unit_price if selling_price is None, otherwise use selling_price
+        price = product.selling_price if product.selling_price is not None else product.unit_price
+        return JsonResponse({'price': float(price)})
     except Product.DoesNotExist:
-        return JsonResponse({'price': 0}, status=404) 
+        return JsonResponse({'price': 0}, status=404)
+    except (TypeError, ValueError):
+        # Handle any other conversion errors
+        return JsonResponse({'price': 0}, status=400) 

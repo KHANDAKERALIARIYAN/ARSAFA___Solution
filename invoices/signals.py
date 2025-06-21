@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from .models import POS, POSItem, Invoice, InvoiceItem
 from customers.models import Customer
 from lending.models import Lending
-from sales.models import Sale
+from sales.models import Sale, SaleItem
 from decimal import Decimal
 from django.utils import timezone
 
@@ -39,17 +39,26 @@ def update_modules_on_pos_save(sender, instance, created, **kwargs):
             lending.save()
 
     # 3. Sales Module
-    sale, s_created = Sale.objects.get_or_create(
-        invoice_id=instance.pos_number,
-        defaults={
-            'total': instance.total,
-            'timestamp': instance.date
-        }
-    )
-    if not s_created:
-        sale.total = instance.total
-        sale.timestamp = instance.date
-        sale.save()
+    if instance.status == 'paid':
+        customer = Customer.objects.filter(name=instance.customer_name, phone=instance.contact_number).first()
+        sale, s_created = Sale.objects.get_or_create(
+            date=instance.date,
+            customer=customer,
+            defaults={'total_amount': instance.total}
+        )
+        
+        if not s_created:
+            sale.total_amount = instance.total
+            sale.save()
+        else: # If a new sale is created, populate its items
+            for pos_item in instance.items.all():
+                SaleItem.objects.create(
+                    sale=sale,
+                    product=pos_item.product,
+                    quantity=pos_item.quantity,
+                    unit_price=pos_item.unit_price
+                )
+
 
     # 4. Invoices Module
     if customer:

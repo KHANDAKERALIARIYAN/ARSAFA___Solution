@@ -1,5 +1,6 @@
 {% extends 'accounts/base.html' %}
 {% load static %}
+{% load invoice_tags %}
 
 {% block title %}Invoice {{ invoice.invoice_number }} | ARSAFA SOLUTION{% endblock %}
 
@@ -51,11 +52,11 @@
                     </tr>
                     <tr>
                         <td colspan="4" class="text-end">VAT (5%):</td>
-                        <td>৳ {{ invoice.amount|mul:0.05|floatformat:0 }}</td>
+                        <td>৳ {{ invoice.amount|multiply:0.05|floatformat:0 }}</td>
                     </tr>
                     <tr>
                         <td colspan="4" class="text-end"><b>Total:</b></td>
-                        <td><b>৳ {{ invoice.amount|add:invoice.amount|mul:0.05|floatformat:0 }}</b></td>
+                        <td><b>৳ {{ invoice.amount|multiply:1.05|floatformat:0 }}</b></td>
                     </tr>
                 </tfoot>
             </table>

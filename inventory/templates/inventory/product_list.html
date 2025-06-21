@@ -38,13 +38,21 @@
             {% for product in products %}
             <tr>
                 <td>{{ product.name }}</td>
-                <td>{{ product.category }}</td>
+                <td>{{ product.get_category_display }}</td>
                 <td>{{ product.quantity }}</td>
-                <td>{{ product.unit_price }}</td>
-                <td>{{ product.buying_price }}</td>
-                <td>{{ product.expiry_date }}</td>
-                <td>{{ product.input_date }}</td>
-                <td>{{ product.get_status_display }}</td>
+                <td>৳{{ product.unit_price }}</td>
+                <td>{% if product.buying_price %}৳{{ product.buying_price }}{% else %}-{% endif %}</td>
+                <td>{% if product.expiry_date %}{{ product.expiry_date }}{% else %}-{% endif %}</td>
+                <td>{% if product.input_date %}{{ product.input_date }}{% else %}-{% endif %}</td>
+                <td>
+                    {% if product.status == 'low' %}
+                        <span class="badge bg-danger">{{ product.get_status_display }}</span>
+                    {% elif product.status == 'good' %}
+                        <span class="badge bg-success">{{ product.get_status_display }}</span>
+                    {% else %}
+                        <span class="badge bg-warning">{{ product.get_status_display }}</span>
+                    {% endif %}
+                </td>
                 <td>
                     <a href="{% url 'product_update' product.pk %}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></a>
                     <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>

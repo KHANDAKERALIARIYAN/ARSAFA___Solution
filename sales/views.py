@@ -1,108 +1,93 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.db.models import Sum, Count, Avg, F
+from django.db.models.functions import TruncMonth, TruncDay
 from .models import Sale, SaleItem
+from customers.models import Customer
 from inventory.models import Product
-from django.db import transaction
-from django.forms import modelformset_factory
-from django import forms
-from django.db.models import Sum, Count, F
-from django.utils import timezone
 from datetime import timedelta
-try:
-    from customers.models import Customer
-except ImportError:
-    Customer = None
+from django.utils import timezone
+import json
 
-class SaleItemForm(forms.ModelForm):
-    class Meta:
-        model = SaleItem
-        fields = ['product', 'quantity', 'unit_price']
-
-@login_required
-def sales_list(request):
-    sales = Sale.objects.all().order_by('-timestamp')
-    return render(request, 'sales/sales_list.html', {'sales': sales})
-
-@login_required
-def sales_detail(request, pk):
-    sale = get_object_or_404(Sale, pk=pk)
-    return render(request, 'sales/sales_detail.html', {'sale': sale})
-
-@login_required
-def sales_create(request):
-    SaleItemFormSet = modelformset_factory(SaleItem, form=SaleItemForm, extra=1, can_delete=True)
-    if request.method == 'POST':
-        formset = SaleItemFormSet(request.POST, queryset=SaleItem.objects.none())
-        if formset.is_valid():
-            with transaction.atomic():
-                sale = Sale.objects.create(total=0, invoice_id=f"INV{Sale.objects.count()+1:05d}")
-                total = 0
-                for form in formset:
-                    if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
-                        item = form.save(commit=False)
-                        item.sale = sale
-                        item.subtotal = item.quantity * item.unit_price
-                        item.save()
-                        total += item.subtotal
-                        # Optionally update product stock here
-                sale.total = total
-                sale.save()
-                return redirect('sales_detail', pk=sale.pk)
-    else:
-        formset = SaleItemFormSet(queryset=SaleItem.objects.none())
-    return render(request, 'sales/sales_form.html', {'formset': formset})
-
-@login_required
 def sales_report(request):
-    today = timezone.now().date()
-    week_start = today - timedelta(days=today.weekday())
-    year_start = today.replace(month=1, day=1)
+    period = request.GET.get('period', '30')
+    days = int(period)
 
-    # Total sales and orders
-    total_sales = Sale.objects.aggregate(total=Sum('total'))['total'] or 0
-    total_orders = Sale.objects.count()
-    avg_order_value = total_sales / total_orders if total_orders else 0
+    # --- Date Ranges ---
+    end_date = timezone.now()
+    start_date = end_date - timedelta(days=days)
+    prev_end_date = start_date
+    prev_start_date = prev_end_date - timedelta(days=days)
 
-    # New customers (this week)
-    new_customers = 0
-    if Customer:
-        try:
-            new_customers = Customer.objects.filter(created_at__gte=week_start).count()
-        except Exception:
-            new_customers = 0
+    # --- Summary Cards ---
+    sales = Sale.objects.filter(date__range=[start_date, end_date])
+    total_sales = sales.aggregate(total=Sum('total_amount'))['total'] or 0
+    total_orders = sales.count()
+    avg_order_value = sales.aggregate(avg=Avg('total_amount'))['avg'] or 0
+    new_customers = Customer.objects.filter(created_at__range=[start_date, end_date]).count()
 
-    # Daily sales (current week)
-    daily_sales = [0]*7
-    for i in range(7):
-        day = week_start + timedelta(days=i)
-        sales = Sale.objects.filter(timestamp__date=day).aggregate(total=Sum('total'))['total'] or 0
-        daily_sales[i] = float(sales)
+    # --- Daily Sales Chart (Last 7 Days) ---
+    seven_days_ago = timezone.now().date() - timedelta(days=7)
+    daily_sales_data = Sale.objects.filter(date__date__gt=seven_days_ago) \
+        .annotate(day=TruncDay('date')) \
+        .values('day') \
+        .annotate(total=Sum('total_amount')) \
+        .order_by('day')
+    
+    daily_labels = [s['day'].strftime('%a') for s in daily_sales_data]
+    daily_totals = [float(s['total']) for s in daily_sales_data]
 
-    # Monthly revenue (current year)
-    monthly_revenue = [0]*12
-    for m in range(1, 13):
-        sales = Sale.objects.filter(timestamp__year=today.year, timestamp__month=m).aggregate(total=Sum('total'))['total'] or 0
-        monthly_revenue[m-1] = float(sales)
+    # --- Monthly Revenue Trend (Last 6 Months) ---
+    six_months_ago = timezone.now().date() - timedelta(days=180)
+    monthly_revenue_data = Sale.objects.filter(date__date__gt=six_months_ago) \
+        .annotate(month=TruncMonth('date')) \
+        .values('month') \
+        .annotate(total=Sum('total_amount')) \
+        .order_by('month')
+        
+    monthly_labels = [r['month'].strftime('%b') for r in monthly_revenue_data]
+    monthly_totals = [float(r['total']) for r in monthly_revenue_data]
 
-    # Top selling products
-    top_products = (
-        SaleItem.objects.values('product__name')
-        .annotate(units_sold=Sum('quantity'), revenue=Sum('subtotal'))
-        .order_by('-units_sold')[:3]
-    )
-    # Add dummy growth data
-    for i, prod in enumerate(top_products):
-        prod['growth'] = [12.5, 8.3, -2.1][i] if i < 3 else 0
+    # --- Top Selling Products with Growth ---
+    top_products_current = SaleItem.objects.filter(sale__date__range=[start_date, end_date]) \
+        .values('product__name', 'product__id') \
+        .annotate(
+            units_sold=Sum('quantity'),
+            revenue=Sum(F('quantity') * F('unit_price'))
+        ).order_by('-units_sold')[:5]
 
+    top_products_data = []
+    for p in top_products_current:
+        prev_sales = SaleItem.objects.filter(
+            sale__date__range=[prev_start_date, prev_end_date],
+            product__id=p['product__id']
+        ).aggregate(prev_units=Sum('quantity'))
+        
+        prev_units_sold = prev_sales['prev_units'] or 0
+        
+        growth = 0
+        if prev_units_sold > 0:
+            growth = ((p['units_sold'] - prev_units_sold) / prev_units_sold) * 100
+        elif p['units_sold'] > 0:
+            growth = 100 # Infinite growth becomes 100%
+
+        top_products_data.append({
+            'product__name': p['product__name'],
+            'units_sold': p['units_sold'],
+            'revenue': p['revenue'],
+            'growth': growth,
+        })
+        
     context = {
         'total_sales': total_sales,
         'total_orders': total_orders,
         'avg_order_value': avg_order_value,
         'new_customers': new_customers,
-        'daily_sales': daily_sales,
-        'monthly_revenue': monthly_revenue,
-        'top_products': top_products,
-        'weekdays': ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-        'months': ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        'daily_labels': json.dumps(daily_labels),
+        'daily_totals': json.dumps(daily_totals),
+        'monthly_labels': json.dumps(monthly_labels),
+        'monthly_totals': json.dumps(monthly_totals),
+        'top_products': top_products_data,
+        'section': 'sales_report',
+        'selected_period': period,
     }
-    return render(request, 'sales/sales_report.html', context)
+    return render(request, 'sales/sales_report.html', context) 

@@ -1,155 +1,189 @@
 {% extends 'accounts/base.html' %}
+{% load static %}
+
 {% block title %}Sales Report | ARSAFA SOLUTION{% endblock %}
-{% block header %}Sales Report{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-3 mb-2">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3"><i class="bi bi-currency-dollar fs-2 text-success"></i></div>
-                        <div>
-                            <div class="text-muted">Total Sales</div>
-                            <div class="fs-4 fw-bold">${{ total_sales|floatformat:2 }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="font-weight-bold">Sales Report</h4>
+            <p class="text-muted">Track your sales performance and revenue trends</p>
         </div>
-        <div class="col-md-3 mb-2">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3"><i class="bi bi-box-seam fs-2 text-primary"></i></div>
-                        <div>
-                            <div class="text-muted">Total Orders</div>
-                            <div class="fs-4 fw-bold">{{ total_orders }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-2">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3"><i class="bi bi-graph-up-arrow fs-2 text-warning"></i></div>
-                        <div>
-                            <div class="text-muted">Avg Order Value</div>
-                            <div class="fs-4 fw-bold">${{ avg_order_value|floatformat:2 }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-2">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3"><i class="bi bi-person-plus fs-2 text-purple"></i></div>
-                        <div>
-                            <div class="text-muted">New Customers</div>
-                            <div class="fs-4 fw-bold">{{ new_customers }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div>
+            <select class="form-select">
+                <option selected>Today</option>
+                <option>Last 7 Days</option>
+                <option>Last 30 Days</option>
+                <option>Last 12 Months</option>
+            </select>
         </div>
     </div>
-    <div class="row mb-4">
-        <div class="col-md-6 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6>Daily Sales</h6>
-                    <canvas id="dailySalesChart" height="120"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6>Monthly Revenue Trend</h6>
-                    <canvas id="monthlyRevenueChart" height="120"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
+
+    <!-- Summary Cards -->
     <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card h-100">
                 <div class="card-body">
-                    <h6>Top Selling Products</h6>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Units Sold</th>
-                                <th>Revenue</th>
-                                <th>Growth</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for prod in top_products %}
-                            <tr>
-                                <td>{{ prod.product__name }}</td>
-                                <td>{{ prod.units_sold }}</td>
-                                <td>${{ prod.revenue|floatformat:2 }}</td>
-                                <td>
-                                    {% if prod.growth > 0 %}
-                                        <span class="text-success">+{{ prod.growth }}%</span>
-                                    {% elif prod.growth < 0 %}
-                                        <span class="text-danger">{{ prod.growth }}%</span>
-                                    {% else %}
-                                        <span class="text-muted">0%</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="4" class="text-center">No data</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Sales</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">৳{{ total_sales|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-primary"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_orders }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-box fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Avg. Order Value</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">৳{{ avg_order_value|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">New Customers</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ new_customers }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-plus fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-lg-7 mb-4">
+            <div class="card h-100">
+                <div class="card-header">Daily Sales (Last 7 Days)</div>
+                <div class="card-body">
+                    <canvas id="dailySalesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5 mb-4">
+            <div class="card h-100">
+                <div class="card-header">Monthly Revenue Trend</div>
+                <div class="card-body">
+                    <canvas id="monthlyRevenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Selling Products -->
+    <div class="card">
+        <div class="card-header">Top Selling Products</div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Units Sold</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in top_products %}
+                    <tr>
+                        <td>{{ product.product__name }}</td>
+                        <td>{{ product.units_sold }}</td>
+                        <td>৳{{ product.revenue|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No sales data available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-{% endblock %}
-{% block extra_head %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-{% endblock %}
-{% block extra_body %}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const dailySalesCtx = document.getElementById('dailySalesChart').getContext('2d');
-new Chart(dailySalesCtx, {
-    type: 'bar',
-    data: {
-        labels: {{ weekdays|safe }},
-        datasets: [{
-            label: 'Sales',
-            data: {{ daily_sales|safe }},
-            backgroundColor: '#3498db',
-        }]
-    },
-    options: {scales: {y: {beginAtZero: true}}}
-});
-const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
-new Chart(monthlyRevenueCtx, {
-    type: 'line',
-    data: {
-        labels: {{ months|safe }},
-        datasets: [{
-            label: 'Revenue',
-            data: {{ monthly_revenue|safe }},
-            borderColor: '#27ae60',
-            backgroundColor: 'rgba(39,174,96,0.1)',
-            fill: true,
-            tension: 0.4
-        }]
-    },
-    options: {scales: {y: {beginAtZero: true}}}
+document.addEventListener("DOMContentLoaded", function() {
+    // Daily Sales Chart
+    var ctxDaily = document.getElementById('dailySalesChart').getContext('2d');
+    new Chart(ctxDaily, {
+        type: 'bar',
+        data: {
+            labels: {{ daily_labels|safe }},
+            datasets: [{
+                label: 'Sales',
+                data: {{ daily_totals|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Monthly Revenue Chart
+    var ctxMonthly = document.getElementById('monthlyRevenueChart').getContext('2d');
+    new Chart(ctxMonthly, {
+        type: 'line',
+        data: {
+            labels: {{ monthly_labels|safe }},
+            datasets: [{
+                label: 'Revenue',
+                data: {{ monthly_totals|safe }},
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 });
 </script>
 {% endblock %} 

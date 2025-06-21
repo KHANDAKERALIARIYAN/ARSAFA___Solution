@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Delete Lending</h2>
-    <p>Are you sure you want to delete the lending for <strong>{{ lending.customer.name }}</strong> of amount <strong>${{ lending.amount|floatformat:2 }}</strong>?</p>
+    <p>Are you sure you want to delete the lending for <strong>{{ lending.customer.name }}</strong> of amount <strong>৳{{ lending.amount|floatformat:2 }}</strong>?</p>
     <form method="post">{% csrf_token %}
         <button type="submit" class="btn btn-danger">Yes, delete</button>
         <a href="{% url 'lending_dashboard' %}" class="btn btn-secondary">Cancel</a>

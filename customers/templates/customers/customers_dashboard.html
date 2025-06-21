@@ -37,7 +37,7 @@
                         <div class="me-3"><i class="bi bi-currency-dollar fs-2 text-info"></i></div>
                         <div>
                             <div class="text-muted">Total Sales</div>
-                            <div class="fs-4 fw-bold">${{ total_sales|floatformat:2 }}</div>
+                            <div class="fs-4 fw-bold">৳{{ total_sales|floatformat:2 }}</div>
                         </div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                         <div class="me-3"><i class="bi bi-person-dash fs-2 text-danger"></i></div>
                         <div>
                             <div class="text-muted">Outstanding Balance</div>
-                            <div class="fs-4 fw-bold text-danger">${{ outstanding_balance|floatformat:2 }}</div>
+                            <div class="fs-4 fw-bold text-danger">৳{{ outstanding_balance|floatformat:2 }}</div>
                         </div>
                     </div>
                 </div>
@@ -89,8 +89,8 @@
                                     <div><i class="bi bi-envelope me-1"></i>{{ c.email }}</div>
                                     <div><i class="bi bi-telephone me-1"></i>{{ c.phone }}</div>
                                 </td>
-                                <td class="fw-bold">${{ c.total_purchases|floatformat:2 }}</td>
-                                <td class="fw-bold {% if c.outstanding_balance > 0 %}text-danger{% else %}text-success{% endif %}">${{ c.outstanding_balance|floatformat:2 }}</td>
+                                <td class="fw-bold">৳{{ c.total_purchases|floatformat:2 }}</td>
+                                <td class="fw-bold {% if c.outstanding_balance > 0 %}text-danger{% else %}text-success{% endif %}">৳{{ c.outstanding_balance|floatformat:2 }}</td>
                                 <td>{{ c.last_purchase|date:'Y-m-d' }}</td>
                                 <td>
                                     {% if c.status == 'active' %}

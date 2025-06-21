@@ -31,7 +31,7 @@
                     <div class="card-body text-center">
                         <div class="mb-2" style="font-size:2rem;color:#22c55e;"><i class="fas fa-arrow-up"></i></div>
                         <div class="text-muted">Total Sales Today</div>
-                        <div class="fs-3 fw-bold">${{ summary.total_sales_today|floatformat:0 }}</div>
+                        <div class="fs-3 fw-bold">৳{{ summary.total_sales_today|floatformat:0 }}</div>
                         <div class="text-success small">↑ {{ summary.sales_growth }}%</div>
                     </div>
                 </div>
@@ -61,54 +61,8 @@
                     <div class="card-body text-center">
                         <div class="mb-2" style="font-size:2rem;color:#a855f7;"><i class="fas fa-credit-card"></i></div>
                         <div class="text-muted">Credit Balance</div>
-                        <div class="fs-3 fw-bold">${{ summary.credit_balance|floatformat:0 }}</div>
+                        <div class="fs-3 fw-bold">৳{{ summary.credit_balance|floatformat:0 }}</div>
                         <div class="text-success small">↑ {{ summary.credit_growth }}%</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row mt-4 g-4">
-            <div class="col-md-7">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="fw-bold mb-3">Recent Activities</h5>
-                        <ul class="list-group list-group-flush">
-                            {% for act in recent_activities %}
-                            <li class="list-group-item d-flex align-items-center">
-                                <span class="me-3" style="font-size:1.2rem;">
-                                    {% if act.type == 'invoice' %}<i class="fas fa-file-invoice text-primary"></i>{% endif %}
-                                    {% if act.type == 'payment' %}<i class="fas fa-dollar-sign text-success"></i>{% endif %}
-                                    {% if act.type == 'stock' %}<i class="fas fa-box text-warning"></i>{% endif %}
-                                    {% if act.type == 'customer' %}<i class="fas fa-user-plus text-info"></i>{% endif %}
-                                </span>
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold">{{ act.message }}</div>
-                                    <div class="text-muted small">{{ act.detail }} • {{ act.time }}</div>
-                                </div>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-5">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="fw-bold mb-3">Quick Actions</h5>
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <a href="/inventory/" class="btn btn-light w-100 py-3 border"><i class="fas fa-box me-2"></i>Add Product</a>
-                            </div>
-                            <div class="col-6">
-                                <a href="{% url 'pos_create' %}" class="btn btn-light w-100 py-3 border"><i class="fas fa-cash-register me-2"></i>New Sale</a>
-                            </div>
-                            <div class="col-6">
-                                <a href="{% url 'sales_report' %}" class="btn btn-light w-100 py-3 border"><i class="fas fa-chart-line me-2"></i>View Reports</a>
-                            </div>
-                            <div class="col-6">
-                                <a href="{% url 'lending_dashboard' %}" class="btn btn-light w-100 py-3 border"><i class="fas fa-credit-card me-2"></i>Lending</a>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
