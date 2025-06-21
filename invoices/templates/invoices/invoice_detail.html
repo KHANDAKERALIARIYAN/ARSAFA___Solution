@@ -5,79 +5,171 @@
 {% block title %}Invoice {{ invoice.invoice_number }} | ARSAFA SOLUTION{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-body">
-            <div class="text-center mb-2">
-                <h2 style="font-weight:bold;">ARSAFA Supermarket</h2>
-                <div>123 Market Road, Dhaka | Phone: 018xx-xxxxxx</div>
+<style>
+    .invoice-container {
+        background-color: #fff;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+    }
+    .invoice-header .logo {
+        max-width: 150px;
+    }
+    .invoice-header .info {
+        text-align: right;
+    }
+    .invoice-header .info h2 {
+        margin: 0;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    .invoice-status {
+        text-align: right;
+        margin-bottom: 2rem;
+    }
+    .invoice-status .badge {
+        font-size: 1.1rem;
+        padding: 0.6em 1em;
+        font-weight: 600;
+    }
+    .invoice-details {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+    .invoice-details .section h5 {
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 0.5rem;
+    }
+    .table thead {
+        background-color: #f8f9fa;
+    }
+    .table thead th {
+        font-weight: 600;
+        color: #495057;
+    }
+    .invoice-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-top: 2rem;
+    }
+    .invoice-footer .notes {
+        max-width: 50%;
+    }
+    .invoice-footer .totals {
+        width: 300px;
+    }
+    .print-btn-container {
+        text-align: center;
+        margin-top: 2rem;
+    }
+</style>
+
+<div class="invoice-container">
+    <!-- Header -->
+    <div class="invoice-header">
+        <div>
+            <img src="{% static 'accounts/arsafa_logo.png' %}" alt="ARSAFA Logo" class="logo">
+            <h5 class="mt-2">ARSAFA SOLUTION</h5>
+            <p class="text-muted mb-0">123 Market Road, Dhaka</p>
+            <p class="text-muted">contact@arsafasolution.com</p>
+        </div>
+        <div class="info">
+            <h2>Invoice</h2>
+            <p class="text-muted mb-0">#{{ invoice.invoice_number }}</p>
+            {% if invoice.status == 'paid' %}<span class="badge bg-success-soft text-success">Paid</span>
+            {% elif invoice.status == 'unpaid' %}<span class="badge bg-warning-soft text-warning">Unpaid</span>
+            {% elif invoice.status == 'overdue' %}<span class="badge bg-danger-soft text-danger">Overdue</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Details -->
+    <div class="invoice-details">
+        <div class="section">
+            <h5>Billed To</h5>
+            <p class="mb-0">{{ invoice.customer.name }}</p>
+            <p class="text-muted">{{ invoice.customer.phone }}</p>
+        </div>
+        <div class="section text-end">
+            <h5>Invoice Date</h5>
+            <p class="mb-0">{{ invoice.date|date:"F d, Y" }}</p>
+            <h5>Due Date</h5>
+            <p class="mb-0">{{ invoice.due_date|date:"F d, Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th class="text-end">Quantity</th>
+                    <th class="text-end">Unit Price</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in invoice.items.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.product.name }}</td>
+                    <td class="text-end">{{ item.quantity }}</td>
+                    <td class="text-end">৳{{ item.unit_price|floatformat:2 }}</td>
+                    <td class="text-end">৳{{ item.amount|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Footer -->
+    <div class="invoice-footer">
+        <div class="notes">
+            <h5>Notes</h5>
+            <p class="text-muted">Thank you for your business. Please contact us with any questions regarding this invoice.</p>
+        </div>
+        <div class="totals">
+            <div class="d-flex justify-content-between">
+                <span class="text-muted">Subtotal:</span>
+                <span>৳{{ invoice.amount|floatformat:2 }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-muted">VAT (5%):</span>
+                <span>৳{{ invoice.amount|multiply:0.05|floatformat:2 }}</span>
             </div>
             <hr>
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <b>Customer Info</b><br>
-                    Name: {{ invoice.customer.name }}<br>
-                    Phone: {{ invoice.customer.phone }}
-                </div>
-                <div class="col-sm-6 text-end">
-                    <b>Invoice #:</b> {{ invoice.invoice_number }}<br>
-                    <b>Date:</b> {{ invoice.date|date:"d-M-Y" }}
-                </div>
-            </div>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in invoice.items.all %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ item.product.name }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>৳ {{ item.unit_price|floatformat:0 }}</td>
-                        <td>৳ {{ item.amount|floatformat:0 }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="4" class="text-end"><b>Subtotal:</b></td>
-                        <td>৳ {{ invoice.amount|floatformat:0 }}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4" class="text-end">VAT (5%):</td>
-                        <td>৳ {{ invoice.amount|multiply:0.05|floatformat:0 }}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4" class="text-end"><b>Total:</b></td>
-                        <td><b>৳ {{ invoice.amount|multiply:1.05|floatformat:0 }}</b></td>
-                    </tr>
-                </tfoot>
-            </table>
-            <div class="mt-4">
-                Thank you for shopping with ARSAFA!<br>
-                <b>Authorized Signature:</b> ______________________
-            </div>
-            <div class="text-end mt-3">
-                <button onclick="window.print()" class="btn btn-primary">Print Invoice</button>
+            <div class="d-flex justify-content-between h4">
+                <span class="fw-bold">Total:</span>
+                <span class="fw-bold">৳{{ invoice.amount|multiply:1.05|floatformat:2 }}</span>
             </div>
         </div>
     </div>
 </div>
-<style type="text/css" media="print">
-    @media print {
-        .btn, .navbar, footer {
-            display: none !important;
-        }
-        .card {
-            border: none !important;
-        }
-    }
+
+<div class="print-btn-container">
+    <button onclick="window.print()" class="btn btn-lg btn-primary"><i class="fas fa-print"></i> Print Invoice</button>
+</div>
+
+<style>
+.bg-success-soft { background-color: rgba(40, 167, 69, 0.1); color: #28a745 !important; }
+.bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); color: #ffc107 !important; }
+.bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); color: #dc3545 !important; }
+.badge { padding: 0.5em 0.75em; }
+@media print {
+    body { background-color: #fff; }
+    .main-box, .navbar, .print-btn-container { display: none !important; }
+    .invoice-container { box-shadow: none; padding: 0; border-radius: 0; }
+}
 </style>
 {% endblock %} 

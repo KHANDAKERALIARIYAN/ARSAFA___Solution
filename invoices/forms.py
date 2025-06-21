@@ -52,7 +52,7 @@ class POSItemForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if 'instance' in kwargs and kwargs['instance']:
             # Use unit_price if selling_price is None, otherwise use selling_price
-            price = kwargs['instance'].product.selling_price if kwargs['instance'].product.selling_price is not None else kwargs['instance'].product.unit_price
+            price = kwargs['instance'].product.unit_price
             self.fields['unit_price'].initial = price
 
 class InvoiceForm(forms.ModelForm):

@@ -4,7 +4,7 @@ from django.db.models.functions import TruncMonth, TruncDay
 from .models import Sale, SaleItem
 from customers.models import Customer
 from inventory.models import Product
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.utils import timezone
 import json
 
@@ -25,37 +25,46 @@ def sales_report(request):
     avg_order_value = sales.aggregate(avg=Avg('total_amount'))['avg'] or 0
     new_customers = Customer.objects.filter(created_at__range=[start_date, end_date]).count()
 
-    # --- Daily Sales Chart (Last 7 Days) ---
-    seven_days_ago = timezone.now().date() - timedelta(days=7)
-    daily_sales_data = Sale.objects.filter(date__date__gt=seven_days_ago) \
-        .annotate(day=TruncDay('date')) \
-        .values('day') \
-        .annotate(total=Sum('total_amount')) \
-        .order_by('day')
+    # --- Daily Sales Chart (Whole Week - Last 7 Days) ---
+    # Get the start of the current week (Monday)
+    today = timezone.now().date()
+    days_since_monday = today.weekday()
+    week_start = today - timedelta(days=days_since_monday)
     
-    daily_labels = [s['day'].strftime('%a') for s in daily_sales_data]
-    daily_totals = [float(s['total']) for s in daily_sales_data]
-
-    # --- Monthly Revenue Trend (Last 6 Months) ---
-    six_months_ago = timezone.now().date() - timedelta(days=180)
-    monthly_revenue_data = Sale.objects.filter(date__date__gt=six_months_ago) \
-        .annotate(month=TruncMonth('date')) \
-        .values('month') \
-        .annotate(total=Sum('total_amount')) \
-        .order_by('month')
+    # Generate all 7 days of the week
+    week_days = []
+    daily_sales_data = []
+    
+    for i in range(7):
+        current_day = week_start + timedelta(days=i)
+        week_days.append(current_day)
         
-    monthly_labels = [r['month'].strftime('%b') for r in monthly_revenue_data]
-    monthly_totals = [float(r['total']) for r in monthly_revenue_data]
+        # Get sales for this specific day
+        day_sales = Sale.objects.filter(
+            date__date=current_day
+        ).aggregate(total=Sum('total_amount'))
+        
+        daily_sales_data.append({
+            'day': current_day,
+            'total': day_sales['total'] or 0
+        })
+    
+    daily_labels = [day.strftime('%a') for day in week_days]
+    daily_totals = [float(data['total']) for data in daily_sales_data]
 
-    # --- Top Selling Products with Growth ---
+    # --- Top Selling Products Chart ---
     top_products_current = SaleItem.objects.filter(sale__date__range=[start_date, end_date]) \
         .values('product__name', 'product__id') \
         .annotate(
             units_sold=Sum('quantity'),
             revenue=Sum(F('quantity') * F('unit_price'))
-        ).order_by('-units_sold')[:5]
+        ).order_by('-units_sold')[:10]  # Get top 10 for better chart visualization
 
     top_products_data = []
+    product_names = []
+    product_units = []
+    product_revenues = []
+    
     for p in top_products_current:
         prev_sales = SaleItem.objects.filter(
             sale__date__range=[prev_start_date, prev_end_date],
@@ -77,6 +86,11 @@ def sales_report(request):
             'growth': growth,
         })
         
+        # Data for the chart
+        product_names.append(p['product__name'])
+        product_units.append(p['units_sold'])
+        product_revenues.append(float(p['revenue']))
+        
     context = {
         'total_sales': total_sales,
         'total_orders': total_orders,
@@ -84,9 +98,10 @@ def sales_report(request):
         'new_customers': new_customers,
         'daily_labels': json.dumps(daily_labels),
         'daily_totals': json.dumps(daily_totals),
-        'monthly_labels': json.dumps(monthly_labels),
-        'monthly_totals': json.dumps(monthly_totals),
         'top_products': top_products_data,
+        'product_names': json.dumps(product_names),
+        'product_units': json.dumps(product_units),
+        'product_revenues': json.dumps(product_revenues),
         'section': 'sales_report',
         'selected_period': period,
     }

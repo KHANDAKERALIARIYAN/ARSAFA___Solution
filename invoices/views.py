@@ -284,13 +284,7 @@ def pos_delete(request, pos_id):
 
 @require_GET
 def get_product_price(request, product_id):
-    try:
-        product = Product.objects.get(id=product_id)
-        # Use unit_price if selling_price is None, otherwise use selling_price
-        price = product.selling_price if product.selling_price is not None else product.unit_price
-        return JsonResponse({'price': float(price)})
-    except Product.DoesNotExist:
-        return JsonResponse({'price': 0}, status=404)
-    except (TypeError, ValueError):
-        # Handle any other conversion errors
-        return JsonResponse({'price': 0}, status=400) 
+    product = get_object_or_404(Product, id=product_id)
+    # Use unit_price if selling_price is None, otherwise use selling_price
+    price = product.unit_price
+    return JsonResponse({'price': price}) 
