@@ -188,10 +188,11 @@ def pos_create(request):
 def pos_edit(request, pos_id):
     pos = get_object_or_404(POS, id=pos_id)
     items = pos.items.all()
-    
+    item_form = POSItemForm()  # Initialize the form here
+
     if request.method == 'POST':
         if 'add_item' in request.POST:
-            item_form = POSItemForm(request.POST)
+            item_form = POSItemForm(request.POST)  # Re-bind with POST data
             if item_form.is_valid():
                 item = item_form.save(commit=False)
                 item.pos = pos
@@ -235,8 +236,7 @@ def pos_edit(request, pos_id):
             pos.save()
             # messages.success(request, 'Payment completed successfully.')
             return redirect('pos_detail', pos_id=pos.id)
-    
-    item_form = POSItemForm()
+
     context = {
         'pos': pos,
         'items': items,

@@ -8,7 +8,6 @@ from decimal import Decimal
 from django.utils import timezone
 
 @receiver(post_save, sender=POSItem)
-@receiver(post_save, sender=InvoiceItem)
 def decrease_stock_on_item_creation(sender, instance, created, **kwargs):
     if created:
         product = instance.product
@@ -16,7 +15,6 @@ def decrease_stock_on_item_creation(sender, instance, created, **kwargs):
         product.save()
 
 @receiver(post_delete, sender=POSItem)
-@receiver(post_delete, sender=InvoiceItem)
 def increase_stock_on_item_deletion(sender, instance, **kwargs):
     product = instance.product
     product.quantity += instance.quantity

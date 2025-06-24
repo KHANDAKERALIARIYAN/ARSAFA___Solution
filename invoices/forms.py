@@ -3,6 +3,7 @@ from .models import Invoice, InvoiceItem, POS, POSItem
 from customers.models import Customer
 from inventory.models import Product
 import re
+from django.core.exceptions import ValidationError
 
 class POSForm(forms.ModelForm):
     class Meta:
@@ -55,6 +56,19 @@ class POSItemForm(forms.ModelForm):
             price = kwargs['instance'].product.unit_price
             self.fields['unit_price'].initial = price
 
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        product = self.cleaned_data.get('product')
+
+        if product and quantity:
+            if quantity > product.quantity:
+                if product.quantity > 0:
+                    message = f'Insufficient stock for {product.name}. Only {product.quantity} units available.'
+                else:
+                    message = f'Stock unavailable for {product.name}.'
+                raise ValidationError(message)
+        return quantity
+
 class InvoiceForm(forms.ModelForm):
     customer = forms.ModelChoiceField(
         queryset=Customer.objects.all(),
@@ -67,6 +81,11 @@ class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
         fields = ['customer', 'date']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'instance' in kwargs and kwargs['instance']:
+            self.fields['unit_price'].initial = kwargs['instance'].product.unit_price
 
 class InvoiceItemForm(forms.ModelForm):
     product = forms.ModelChoiceField(
@@ -89,3 +108,12 @@ class InvoiceItemForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if 'instance' in kwargs and kwargs['instance']:
             self.fields['unit_price'].initial = kwargs['instance'].product.unit_price 
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        product = self.cleaned_data.get('product')
+
+        if product and quantity:
+            if quantity > product.quantity:
+                raise ValidationError(f'Only {product.quantity} units of {product.name} available in stock.')
+        return quantity 
