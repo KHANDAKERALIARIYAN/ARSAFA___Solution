@@ -41,9 +41,9 @@ class Product(models.Model):
         if self.quantity < 10:
             self.status = 'low'
         elif self.quantity <= 50:
-            self.status = 'good'
-        else:
             self.status = 'fair'
+        else:
+            self.status = 'good'
         super().save(*args, **kwargs)
 
     def __str__(self):
