@@ -48,7 +48,7 @@ A Django-based ERP system with admin login, inventory tracking, sales, pos , inv
 ## Contributor 
 Khandaker Ali Ariyan
 <br>
-Nayef Wasit Siddiqie
+Nayef Wasit Siddiqui
 <br>
 Samiun Alim Auntor
 
