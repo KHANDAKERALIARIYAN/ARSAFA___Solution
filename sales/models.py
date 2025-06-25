@@ -2,11 +2,13 @@ from django.db import models
 from django.utils import timezone
 from inventory.models import Product
 from customers.models import Customer
+from invoices.models import POS
 
 class Sale(models.Model):
     date = models.DateTimeField(default=timezone.now)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    pos = models.ForeignKey(POS, null=True, blank=True, on_delete=models.SET_NULL, related_name='sales')
     
     def __str__(self):
         return f"Sale on {self.date.strftime('%Y-%m-%d')}"
