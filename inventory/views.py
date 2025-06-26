@@ -22,7 +22,22 @@ def product_list(request):
             alerts.append(f"Low stock: {product.name} ({product.quantity} left)")
         if product.expiry_date and (product.expiry_date - today).days <= near_expiry_days:
             alerts.append(f"Near expiry: {product.name} (expires {product.expiry_date})")
-    return render(request, 'inventory/product_list.html', {'products': products, 'alerts': alerts, 'search_query': search_query})
+
+    # New inventory management box logic
+    low_stock_count = products.filter(quantity__lt=low_stock_threshold).count()
+    nearly_expire_count = products.filter(expiry_date__isnull=False, expiry_date__lte=today + timedelta(days=near_expiry_days)).count()
+    total_product_count = products.count()
+    total_price = sum([(p.quantity or 0) * float(p.unit_price or 0) for p in products])
+
+    return render(request, 'inventory/product_list.html', {
+        'products': products,
+        'alerts': alerts,
+        'search_query': search_query,
+        'low_stock_count': low_stock_count,
+        'nearly_expire_count': nearly_expire_count,
+        'total_product_count': total_product_count,
+        'total_price': total_price,
+    })
 
 @login_required
 def product_create(request):

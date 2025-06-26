@@ -379,6 +379,38 @@
             </div>
         </div>
 
+        <!-- Inventory Management Boxes -->
+        <div class="row mb-4 fade-in">
+            <div class="col-md-3 mb-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon danger"><i class="fas fa-box-open"></i></div>
+                    <div class="stats-value">{{ low_stock_count }}</div>
+                    <div class="stats-label">Low Stock</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon warning"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="stats-value">{{ nearly_expire_count }}</div>
+                    <div class="stats-label">Nearly Expire</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon primary"><i class="fas fa-cubes"></i></div>
+                    <div class="stats-value">{{ total_product_count }}</div>
+                    <div class="stats-label">Total Product</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon success"><i class="fas fa-coins"></i></div>
+                    <div class="stats-value">৳{{ total_price|floatformat:2 }}</div>
+                    <div class="stats-label">Total Price</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Alerts -->
         {% if alerts %}
         <div class="alert-card fade-in">
