@@ -76,15 +76,20 @@
     .nav-card {
         background-color: #ffffff;
         border: none;
-        border-radius: 12px;
+        border-radius: 50%;
         box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         transition: all 0.3s ease;
         text-align: center;
-        padding: 1.5rem;
+        padding: 1.5rem 0.5rem;
         color: #2c3e50;
         text-decoration: none;
-        display: block;
-        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 110px;
+        height: 110px;
+        margin: 0 auto;
     }
     .nav-card:hover {
         transform: translateY(-5px);
@@ -93,10 +98,11 @@
     }
     .nav-card .icon {
         font-size: 2.5rem;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
     }
     .nav-card .title {
         font-weight: 600;
+        font-size: 1rem;
     }
     .activity-feed .item {
         display: flex;
@@ -121,12 +127,16 @@
         color: #95a5a6;
         margin-left: auto;
     }
+    .quick-access-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
 </style>
 
-<div class="dashboard-header">
-    <h2>Admin Dashboard</h2>
-    <p>Welcome back, {{ request.user.username }}!</p>
-</div>
+<!-- Removed dashboard-header block -->
 
 <!-- Stats -->
 <div class="row g-4 mb-4">
@@ -168,19 +178,17 @@
                 <h5 class="mb-0">Quick Access</h5>
             </div>
             <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3"><a href="/inventory/" class="nav-card"><div class="icon"><i class="fas fa-boxes"></i></div><div class="title">Inventory</div></a></div>
-                    <div class="col-md-3"><a href="{% url 'sales_report' %}" class="nav-card"><div class="icon"><i class="fas fa-chart-bar"></i></div><div class="title">Sales</div></a></div>
-                    <div class="col-md-3"><a href="{% url 'pos_list' %}" class="nav-card"><div class="icon"><i class="fas fa-cash-register"></i></div><div class="title">POS</div></a></div>
-                    <div class="col-md-3"><a href="{% url 'invoice_list' %}" class="nav-card"><div class="icon"><i class="fas fa-file-alt"></i></div><div class="title">Invoices</div></a></div>
-                    <div class="col-md-3"><a href="{% url 'customer_dashboard' %}" class="nav-card"><div class="icon"><i class="fas fa-users"></i></div><div class="title">Customers</div></a></div>
-                    <div class="col-md-3"><a href="{% url 'lending_dashboard' %}" class="nav-card"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><div class="title">Lending</div></a></div>
-                    <div class="col-md-3"><a href="{% url 'employee_list' %}" class="nav-card"><div class="icon"><i class="fas fa-user-tie"></i></div><div class="title">Employees</div></a></div>
-                    <div class="col-md-3"><a href="{% url 'salary_calculation' %}" class="nav-card"><div class="icon"><i class="fas fa-calculator"></i></div><div class="title">Salary</div></a></div>
+                <div class="quick-access-row">
+                    <a href="/inventory/" class="nav-card"><div class="icon"><i class="fas fa-boxes"></i></div><div class="title">Inventory</div></a>
+                    <a href="{% url 'sales_report' %}" class="nav-card"><div class="icon"><i class="fas fa-chart-bar"></i></div><div class="title">Sales</div></a>
+                    <a href="{% url 'pos_list' %}" class="nav-card"><div class="icon"><i class="fas fa-cash-register"></i></div><div class="title">POS</div></a>
+                    <a href="{% url 'invoice_list' %}" class="nav-card"><div class="icon"><i class="fas fa-file-alt"></i></div><div class="title">Invoices</div></a>
+                    <a href="{% url 'customer_dashboard' %}" class="nav-card"><div class="icon"><i class="fas fa-users"></i></div><div class="title">Customers</div></a>
+                    <a href="{% url 'lending_dashboard' %}" class="nav-card"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><div class="title">Lending</div></a>
+                    <a href="{% url 'employee_list' %}" class="nav-card"><div class="icon"><i class="fas fa-user-tie"></i></div><div class="title">Employees</div></a>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 {% endblock %}

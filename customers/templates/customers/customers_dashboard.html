@@ -2,6 +2,8 @@
 {% block title %}Customer Management | ARSAFA SOLUTION{% endblock %}
 {% block header %}Customer Management{% endblock %}
 {% block content %}
+{% load static %}
+{% load customer_extras %}
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-3 mb-2">
@@ -62,7 +64,6 @@
             <form class="flex-grow-1 me-3">
                 <input type="text" class="form-control" placeholder="Search customers by name, email, or phone..." name="q" value="{{ request.GET.q }}">
             </form>
-            <a href="{% url 'customer_create' %}" class="btn btn-primary">+ Add Customer</a>
         </div>
     </div>
     <div class="row">
@@ -74,9 +75,9 @@
                             <tr>
                                 <th>Customer</th>
                                 <th>Contact</th>
-                                <th>Total Purchases</th>
-                                <th>Outstanding</th>
-                                <th>Last Purchase</th>
+                                <th>Email</th>
+                                <th>Purchase Date</th>
+                                <th>Purchase (Amount)</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -85,19 +86,18 @@
                             {% for c in customers %}
                             <tr>
                                 <td><i class="bi bi-person-circle me-2 text-primary"></i>{{ c.name }}</td>
-                                <td>
-                                    <div><i class="bi bi-envelope me-1"></i>{{ c.email }}</div>
-                                    <div><i class="bi bi-telephone me-1"></i>{{ c.phone }}</div>
-                                </td>
-                                <td class="fw-bold">৳{{ c.total_purchases|floatformat:2 }}</td>
-                                <td class="fw-bold {% if c.outstanding_balance > 0 %}text-danger{% else %}text-success{% endif %}">৳{{ c.outstanding_balance|floatformat:2 }}</td>
+                                <td><i class="bi bi-telephone me-1"></i>{{ c.phone }}</td>
+                                <td><i class="bi bi-envelope me-1"></i>{{ c.email }}</td>
                                 <td>{{ c.last_purchase|date:'Y-m-d' }}</td>
+                                <td class="fw-bold">৳{{ c.total_purchases|floatformat:2 }}</td>
                                 <td>
-                                    {% if c.status == 'active' %}
-                                        <span class="badge bg-success">Active</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">Inactive</span>
-                                    {% endif %}
+                                    {% with pos=pos_statuses|get_item:c.pk %}
+                                        {% if pos %}
+                                            <span class="badge {% if pos.status == 'paid' %}bg-success{% else %}bg-warning{% endif %}">{{ pos.status|title }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">N/A</span>
+                                        {% endif %}
+                                    {% endwith %}
                                 </td>
                                 <td>
                                     <a href="#" class="text-primary me-2"><i class="bi bi-eye"></i></a>

@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'lending',
     'invoices',
     'employees',
-    'salary',
 ]
 
 MIDDLEWARE = [
