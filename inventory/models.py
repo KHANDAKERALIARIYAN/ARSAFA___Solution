@@ -23,7 +23,6 @@ class Product(models.Model):
     
     STATUS_CHOICES = [
         ('low', 'Low'),
-        ('good', 'Good'),
         ('fair', 'Fair'),
     ]
     
@@ -38,12 +37,10 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         # Automatically set status based on quantity
-        if self.quantity < 10:
+        if self.quantity < 50:
             self.status = 'low'
-        elif self.quantity <= 50:
-            self.status = 'fair'
         else:
-            self.status = 'good'
+            self.status = 'fair'
         super().save(*args, **kwargs)
 
     def __str__(self):

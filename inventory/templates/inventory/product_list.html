@@ -343,6 +343,17 @@
         100% { transform: scale(1); }
     }
     
+    .low-stock-row {
+        background-color: #dc3545 !important;
+        color: #fff !important;
+    }
+    
+    /* Make low stock row very prominent */
+    table.table tr.low-stock-row td {
+        background-color: #dc3545 !important;
+        color: #fff !important;
+    }
+    
     @media (max-width: 768px) {
         .dashboard-title {
             font-size: 2rem;
@@ -429,11 +440,24 @@
         <!-- Search -->
         <div class="search-card fade-in">
             <form method="get" class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-7">
                     <input type="text" name="search" class="form-control search-input" 
                            placeholder="🔍 Search products by name..." value="{{ search_query }}">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3 d-flex align-items-center">
+                    <i class="fas fa-sort me-2" style="font-size:1.2rem;"></i>
+                    <select name="sort" class="form-select">
+                        <option value="">Sort By</option>
+                        <option value="price_asc" {% if sort_query == 'price_asc' %}selected{% endif %}>Unit Price: Low to High</option>
+                        <option value="price_desc" {% if sort_query == 'price_desc' %}selected{% endif %}>Unit Price: High to Low</option>
+                        <option value="name_asc" {% if sort_query == 'name_asc' %}selected{% endif %}>Name: A-Z</option>
+                        <option value="name_desc" {% if sort_query == 'name_desc' %}selected{% endif %}>Name: Z-A</option>
+                        <option value="expiry_asc" {% if sort_query == 'expiry_asc' %}selected{% endif %}>Expiry Date: Ascending</option>
+                        <option value="expiry_desc" {% if sort_query == 'expiry_desc' %}selected{% endif %}>Expiry Date: Descending</option>
+                        <option value="category_asc" {% if sort_query == 'category_asc' %}selected{% endif %}>Category (A-Z)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
                     <button class="btn search-btn w-100" type="submit">
                         <i class="fas fa-search"></i> Search
                     </button>
@@ -460,7 +484,7 @@
                     </thead>
                     <tbody>
                         {% for product in products %}
-                        <tr>
+                        <tr{% if product.status == 'low' %} class="low-stock-row"{% endif %}>
                             <td>{{ product.name }}</td>
                             <td>{{ product.get_category_display }}</td>
                             <td>{{ product.quantity }}</td>

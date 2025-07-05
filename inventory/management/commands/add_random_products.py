@@ -285,7 +285,11 @@ class Command(BaseCommand):
             
             # Generate random dates
             input_date = date.today() - timedelta(days=random.randint(0, 30))
-            expiry_date = input_date + timedelta(days=random.randint(30, 365))
+            # For the first 10 products, set expiry within next 7 days
+            if i < 10:
+                expiry_date = date.today() + timedelta(days=random.randint(0, 7))
+            else:
+                expiry_date = input_date + timedelta(days=random.randint(30, 365))
             
             # Create product
             product = Product.objects.create(
