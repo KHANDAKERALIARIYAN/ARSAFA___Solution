@@ -92,7 +92,12 @@
             <tbody>
                 {% for item in invoices %}
                 <tr>
-                    <td><strong>{{ item.number }}</strong></td>
+                    <td>
+                        <strong>{{ item.number }}</strong>
+                        {% if item.type == 'pos' %}
+                            <br><small class="text-info"><i class="fas fa-receipt"></i> POS Generated</small>
+                        {% endif %}
+                    </td>
                     <td>{{ item.customer_name }}</td>
                     <td>৳{{ item.amount|floatformat:2 }}</td>
                     <td>
@@ -109,8 +114,8 @@
                             <a href="{% url 'invoice_detail' item.id %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
                             <a href="{% url 'invoice_edit' item.id %}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
                         {% elif item.type == 'pos' %}
-                            <a href="{% url 'pos_detail' item.id %}" class="btn btn-sm btn-outline-info"><i class="fas fa-receipt"></i></a>
-                            <a href="{% url 'pos_edit' item.id %}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'pos_detail' item.id %}" class="btn btn-sm btn-outline-info" title="View POS Details"><i class="fas fa-receipt"></i></a>
+                            <a href="{% url 'pos_edit' item.id %}" class="btn btn-sm btn-outline-secondary" title="Edit POS"><i class="fas fa-edit"></i></a>
                         {% endif %}
                     </td>
                 </tr>

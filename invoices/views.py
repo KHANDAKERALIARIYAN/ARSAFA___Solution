@@ -19,22 +19,26 @@ def invoice_list(request):
     invoices = Invoice.objects.all()
     paid_pos_sales = POS.objects.filter(status='paid')
 
-    combined_list = []
-    
-    # Process standard invoices
-    for inv in invoices:
-        combined_list.append({
-            'id': inv.id,
-            'number': inv.invoice_number,
-            'customer_name': inv.customer.name,
-            'amount': inv.amount,
-            'status': inv.status,
-            'date': inv.date,
-            'due_date': inv.due_date,
-            'type': 'invoice'
-        })
+    # Build a set of POS invoice numbers to filter out duplicates
+    pos_invoice_numbers = set(pos.pos_number for pos in paid_pos_sales)
 
-    # Process paid POS sales
+    combined_list = []
+
+    # Only add manual invoices that are NOT POS-generated
+    for inv in invoices:
+        if inv.invoice_number not in pos_invoice_numbers:
+            combined_list.append({
+                'id': inv.id,
+                'number': inv.invoice_number,
+                'customer_name': inv.customer.name,
+                'amount': inv.amount,
+                'status': inv.status,
+                'date': inv.date,
+                'due_date': inv.due_date,
+                'type': 'invoice'
+            })
+
+    # Add POS-generated invoices
     for pos in paid_pos_sales:
         combined_list.append({
             'id': pos.id,

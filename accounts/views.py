@@ -10,8 +10,6 @@ from lending.models import Lending
 from django.utils import timezone
 from django.db.models import Sum
 
-# Create your views here.
-
 def custom_login(request):
     if request.user.is_authenticated:
         return redirect('admin_dashboard')

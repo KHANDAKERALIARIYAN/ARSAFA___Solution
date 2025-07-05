@@ -214,30 +214,6 @@
         font-weight: 500;
     }
     
-    .growth-badge {
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .growth-positive {
-        background: linear-gradient(135deg, #48bb78, #38a169);
-        color: white;
-    }
-    
-    .growth-negative {
-        background: linear-gradient(135deg, #f56565, #e53e3e);
-        color: white;
-    }
-    
-    .growth-neutral {
-        background: linear-gradient(135deg, #a0aec0, #718096);
-        color: white;
-    }
-    
     .loading-spinner {
         display: none;
         text-align: center;
@@ -437,30 +413,8 @@
                 <div class="col-md-8">
                     <h1 class="dashboard-title">📊 Sales Analytics Dashboard</h1>
                     <p class="dashboard-subtitle">Comprehensive insights into your business performance and revenue trends</p>
-                    
-                    <!-- Quick Actions -->
-                    <div class="quick-actions">
-                        <button class="action-btn" onclick="exportData()">
-                            <i class="fas fa-download"></i> Export Report
-                        </button>
-                        <button class="action-btn" onclick="printReport()">
-                            <i class="fas fa-print"></i> Print
-                        </button>
-                        <button class="action-btn" onclick="refreshData()">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
-                        <button class="action-btn" onclick="shareReport()">
-                            <i class="fas fa-share"></i> Share
-                        </button>
-                    </div>
                 </div>
                 <div class="col-md-4 text-end">
-                    <select class="form-select period-selector" id="periodSelector">
-                        <option value="7">📅 Last 7 Days</option>
-                        <option value="30" selected>📅 Last 30 Days</option>
-                        <option value="90">📅 Last 90 Days</option>
-                        <option value="365">📅 Last Year</option>
-                    </select>
                 </div>
             </div>
         </div>
@@ -488,19 +442,19 @@
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="stats-card pulse">
                     <div class="stats-icon info">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="fas fa-money-bill-wave"></i>
                     </div>
-                    <div class="stats-value">৳{{ avg_order_value|floatformat:2 }}</div>
-                    <div class="stats-label">Avg. Order Value</div>
+                    <div class="stats-value">৳{{ paid_pos_total|floatformat:2 }}</div>
+                    <div class="stats-label">Paid Amount</div>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="stats-card pulse">
                     <div class="stats-icon warning">
-                        <i class="fas fa-user-plus"></i>
+                        <i class="fas fa-money-check-alt"></i>
                     </div>
-                    <div class="stats-value">{{ new_customers }}</div>
-                    <div class="stats-label">New Customers</div>
+                    <div class="stats-value">৳{{ unpaid_pos_total|floatformat:2 }}</div>
+                    <div class="stats-label">Unpaid Amount</div>
                 </div>
             </div>
         </div>
@@ -544,7 +498,6 @@
                             <th>🏆 Product</th>
                             <th>📦 Units Sold</th>
                             <th>💰 Revenue</th>
-                            <th>📈 Growth</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -553,19 +506,10 @@
                             <td><strong>{{ product.product__name }}</strong></td>
                             <td><span class="badge bg-primary">{{ product.units_sold }}</span></td>
                             <td><strong>৳{{ product.revenue|floatformat:2 }}</strong></td>
-                            <td>
-                                {% if product.growth > 0 %}
-                                    <span class="growth-badge growth-positive">↗ +{{ product.growth|floatformat:1 }}%</span>
-                                {% elif product.growth < 0 %}
-                                    <span class="growth-badge growth-negative">↘ {{ product.growth|floatformat:1 }}%</span>
-                                {% else %}
-                                    <span class="growth-badge growth-neutral">→ 0%</span>
-                                {% endif %}
-                            </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center py-4">
+                            <td colspan="3" class="text-center py-4">
                                 <div class="text-muted">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
                                     <p>No sales data available for the selected period.</p>
@@ -741,12 +685,6 @@ document.addEventListener("DOMContentLoaded", function() {
         loadingSpinner.style.display = 'none';
     }, 1000);
     
-    // Period selector functionality
-    document.getElementById('periodSelector').addEventListener('change', function() {
-        const period = this.value;
-        window.location.href = `?period=${period}`;
-    });
-    
     // Add smooth scrolling and animations
     const observerOptions = {
         threshold: 0.1,
@@ -768,49 +706,6 @@ document.addEventListener("DOMContentLoaded", function() {
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
     });
-    
-    // Quick action functions
-    window.exportData = function() {
-        // Add export functionality
-        const btn = event.target.closest('.action-btn');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
-        btn.disabled = true;
-        
-        setTimeout(() => {
-            btn.innerHTML = '<i class="fas fa-download"></i> Export Report';
-            btn.disabled = false;
-            showNotification('Report exported successfully!', 'success');
-        }, 2000);
-    };
-    
-    window.printReport = function() {
-        window.print();
-    };
-    
-    window.refreshData = function() {
-        const btn = event.target.closest('.action-btn');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-        btn.disabled = true;
-        
-        setTimeout(() => {
-            location.reload();
-        }, 1000);
-    };
-    
-    window.shareReport = function() {
-        if (navigator.share) {
-            navigator.share({
-                title: 'Sales Report',
-                text: 'Check out our latest sales performance!',
-                url: window.location.href
-            });
-        } else {
-            // Fallback for browsers that don't support Web Share API
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                showNotification('Link copied to clipboard!', 'success');
-            });
-        }
-    };
     
     // Notification system
     function showNotification(message, type = 'info') {

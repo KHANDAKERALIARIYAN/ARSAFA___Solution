@@ -29,6 +29,32 @@ class POS(models.Model):
         self.total = self.subtotal - self.discount
         super().save(*args, **kwargs)
 
+    def get_related_invoice(self):
+        """Get the related invoice for this POS"""
+        from invoices.models import Invoice
+        return Invoice.objects.filter(invoice_number=self.pos_number).first()
+
+    def get_related_sale(self):
+        """Get the related sale for this POS"""
+        from sales.models import Sale
+        return Sale.objects.filter(pos=self).first()
+
+    def get_related_lending(self):
+        """Get the related lending record for this POS"""
+        if self.status == 'unpaid':
+            customer = Customer.objects.filter(
+                name=self.customer_name,
+                phone=self.contact_number
+            ).first()
+            if customer:
+                from lending.models import Lending
+                return Lending.objects.filter(
+                    customer=customer,
+                    status='active',
+                    notes__contains=f'POS {self.pos_number} unpaid.'
+                ).first()
+        return None
+
     class Meta:
         ordering = ['-date']
         verbose_name = 'POS'
@@ -66,6 +92,16 @@ class Invoice(models.Model):
 
     def __str__(self):
         return self.invoice_number
+
+    def is_pos_generated(self):
+        """Check if this invoice was generated from a POS transaction"""
+        return self.invoice_number.startswith('POS-')
+    
+    def get_pos_reference(self):
+        """Get the POS reference if this invoice was generated from POS"""
+        if self.is_pos_generated():
+            return self.invoice_number
+        return None
 
     class Meta:
         ordering = ['-date']

@@ -7,6 +7,7 @@ from inventory.models import Product
 from datetime import timedelta, datetime
 from django.utils import timezone
 import json
+from invoices.models import POS
 
 def sales_report(request):
     period = request.GET.get('period', '30')
@@ -23,7 +24,9 @@ def sales_report(request):
     total_sales = sales.aggregate(total=Sum('total_amount'))['total'] or 0
     total_orders = sales.count()
     avg_order_value = sales.aggregate(avg=Avg('total_amount'))['avg'] or 0
+    paid_pos_total = POS.objects.filter(status='paid', date__range=[start_date, end_date]).aggregate(total=Sum('total'))['total'] or 0
     new_customers = Customer.objects.filter(created_at__range=[start_date, end_date]).count()
+    unpaid_pos_total = POS.objects.filter(status='unpaid', date__range=[start_date, end_date]).aggregate(total=Sum('total'))['total'] or 0
 
     # --- Daily Sales Chart (Whole Week - Last 7 Days) ---
     # Get the start of the current week (Monday)
@@ -94,8 +97,8 @@ def sales_report(request):
     context = {
         'total_sales': total_sales,
         'total_orders': total_orders,
-        'avg_order_value': avg_order_value,
-        'new_customers': new_customers,
+        'paid_pos_total': paid_pos_total,
+        'unpaid_pos_total': unpaid_pos_total,
         'daily_labels': json.dumps(daily_labels),
         'daily_totals': json.dumps(daily_totals),
         'top_products': top_products_data,

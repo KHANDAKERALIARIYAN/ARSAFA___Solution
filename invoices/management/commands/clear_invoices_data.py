@@ -1,45 +1,45 @@
 from django.core.management.base import BaseCommand
-from django.db import transaction
-from invoices.models import Invoice, InvoiceItem
+from invoices.models import Invoice, InvoiceItem, POS, POSItem
+
 
 class Command(BaseCommand):
-    help = 'Deletes all invoice and invoice item records from the database.'
+    help = 'Clear all invoice data including invoices, invoice items, POS, and POS items'
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--confirm',
             action='store_true',
-            dest='confirm',
-            help='Confirm that you want to delete all invoice data.',
+            help='Confirm that you want to delete all invoice data',
         )
 
     def handle(self, *args, **options):
         if not options['confirm']:
-            self.stdout.write(self.style.WARNING(
-                'This command will delete ALL invoices and their items. '
-                'This action cannot be undone.'
-            ))
-            self.stdout.write(self.style.WARNING(
-                'To proceed, run the command again with the --confirm flag.'
-            ))
+            self.stdout.write(
+                self.style.WARNING(
+                    'This will delete ALL invoice data. Use --confirm to proceed.'
+                )
+            )
             return
 
-        with transaction.atomic():
-            invoice_item_count = InvoiceItem.objects.count()
-            invoice_count = Invoice.objects.count()
+        # Delete invoice items first (due to foreign key constraints)
+        invoice_items_count = InvoiceItem.objects.count()
+        InvoiceItem.objects.all().delete()
+        
+        # Delete POS items first (due to foreign key constraints)
+        pos_items_count = POSItem.objects.count()
+        POSItem.objects.all().delete()
+        
+        # Delete invoices
+        invoices_count = Invoice.objects.count()
+        Invoice.objects.all().delete()
+        
+        # Delete POS records
+        pos_count = POS.objects.count()
+        POS.objects.all().delete()
 
-            if invoice_item_count == 0 and invoice_count == 0:
-                self.stdout.write(self.style.SUCCESS('There is no invoice data to delete.'))
-                return
-
-            # Delete items first to respect foreign key constraints
-            items_deleted, _ = InvoiceItem.objects.all().delete()
-            invoices_deleted, _ = Invoice.objects.all().delete()
-
-            self.stdout.write(self.style.SUCCESS(
-                f'Successfully deleted {items_deleted} invoice items.'
-            ))
-            self.stdout.write(self.style.SUCCESS(
-                f'Successfully deleted {invoices_deleted} invoices.'
-            ))
-            self.stdout.write(self.style.SUCCESS('All invoice data has been cleared.')) 
+        self.stdout.write(
+            self.style.SUCCESS(
+                f'Successfully deleted {invoices_count} invoices, {invoice_items_count} invoice items, '
+                f'{pos_count} POS records, and {pos_items_count} POS items.'
+            )
+        ) 
