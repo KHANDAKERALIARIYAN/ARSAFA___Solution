@@ -100,9 +100,6 @@
             </div>
             <div class="text-end mt-3">
                 <button onclick="window.print()" class="btn btn-primary">Print Receipt</button>
-                {% if pos.status == 'unpaid' %}
-                <a href="{% url 'pos_edit' pos.id %}" class="btn btn-success">Complete Payment</a>
-                {% endif %}
             </div>
         </div>
     </div>
