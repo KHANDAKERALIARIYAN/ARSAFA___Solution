@@ -186,6 +186,10 @@
                     <a href="{% url 'customer_dashboard' %}" class="nav-card"><div class="icon"><i class="fas fa-users"></i></div><div class="title">Customers</div></a>
                     <a href="{% url 'lending_dashboard' %}" class="nav-card"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><div class="title">Lending</div></a>
                     <a href="{% url 'employee_list' %}" class="nav-card"><div class="icon"><i class="fas fa-user-tie"></i></div><div class="title">Employees</div></a>
+                    <form method="post" action="{% url 'delete_all_data' %}" style="display:inline; margin-left:2rem;" onsubmit="return confirm('Are you sure you want to delete ALL sales, POS, invoices, and lending records? This cannot be undone!');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" style="font-weight:bold;">Reset Application</button>
+                    </form>
                 </div>
             </div>
         </div>

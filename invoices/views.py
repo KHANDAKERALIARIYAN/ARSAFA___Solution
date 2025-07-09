@@ -13,6 +13,7 @@ from inventory.models import Product
 from customers.models import Customer
 from django.views.decorators.http import require_GET
 from decimal import Decimal
+from decimal import InvalidOperation
 
 @login_required
 def invoice_list(request):
@@ -292,3 +293,12 @@ def get_product_price(request, product_id):
     # Use unit_price if selling_price is None, otherwise use selling_price
     price = product.unit_price
     return JsonResponse({'price': price}) 
+
+@require_GET
+def get_product_by_barcode(request, barcode):
+    from inventory.models import Product
+    product = Product.objects.filter(barcode=barcode).first()
+    if product:
+        return JsonResponse({'product_id': product.id, 'name': product.name, 'price': str(product.unit_price)})
+    else:
+        return JsonResponse({'error': 'Not found'}, status=404) 

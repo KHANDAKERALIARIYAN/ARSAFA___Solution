@@ -34,6 +34,7 @@ class Product(models.Model):
     expiry_date = models.DateField(null=True, blank=True)
     input_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='good')
+    barcode = models.CharField(max_length=64, unique=True, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         # Automatically set status based on quantity
