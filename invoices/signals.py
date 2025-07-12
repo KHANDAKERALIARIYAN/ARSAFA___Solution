@@ -207,4 +207,6 @@ def delete_invoice_customer_lending_on_pos_delete(sender, instance, **kwargs):
                 logger.info(f"Deleting customer {customer.name} as they have no remaining activity.")
                 customer.delete()
     except Exception as e:
-        logger.error(f"Error deleting related records for POS {instance.pos_number}: {e}") 
+        logger.error(f"Error deleting related records for POS {instance.pos_number}: {e}")
+
+ 
