@@ -3,29 +3,57 @@ from .models import Customer
 from .forms import CustomerForm
 from django.db.models import Sum, Count
 from django.contrib.auth.decorators import login_required
-from invoices.models import POS
+from django.contrib import messages
+from django.db import IntegrityError
+from invoices.models import POS, Invoice
+from sales.models import Sale
+from lending.models import Lending
 
 # Create your views here.
 
 @login_required
 def customer_dashboard(request):
     total_customers = Customer.objects.count()
-    active_customers = Customer.objects.filter(status='active').count()
-    total_sales = Customer.objects.aggregate(total=Sum('total_purchases'))['total'] or 0
-    outstanding_balance = Customer.objects.aggregate(total=Sum('outstanding_balance'))['total'] or 0
     customers = Customer.objects.all().order_by('-last_purchase')
-    # Fetch most recent POS status for each customer
-    pos_statuses = {}
-    for c in customers:
-        pos = POS.objects.filter(customer_name=c.name, contact_number=c.phone).order_by('-date').first()
-        pos_statuses[c.pk] = pos
+    
+    # Calculate total sales and outstanding balance for all customers
+    total_sales = 0
+    outstanding_balance = 0
+    
+    # Update customer data based on POS bills
+    for customer in customers:
+        # Get all POS bills for this customer
+        all_pos_bills = POS.objects.filter(
+            customer_name=customer.name, 
+            contact_number=customer.phone
+        )
+        
+        # Get paid POS bills
+        paid_pos_bills = all_pos_bills.filter(status='paid')
+        
+        # Get unpaid POS bills
+        unpaid_pos_bills = all_pos_bills.filter(status='unpaid')
+        
+        # Calculate totals
+        total_purchases = all_pos_bills.aggregate(total=Sum('total'))['total'] or 0
+        customer_outstanding = unpaid_pos_bills.aggregate(total=Sum('total'))['total'] or 0
+        
+        # Update customer data
+        if (customer.total_purchases != total_purchases or 
+            customer.outstanding_balance != customer_outstanding):
+            customer.total_purchases = total_purchases
+            customer.outstanding_balance = customer_outstanding
+            customer.save(update_fields=['total_purchases', 'outstanding_balance'])
+        
+        # Add to dashboard totals
+        total_sales += total_purchases
+        outstanding_balance += customer_outstanding
+    
     context = {
         'total_customers': total_customers,
-        'active_customers': active_customers,
         'total_sales': total_sales,
         'outstanding_balance': outstanding_balance,
         'customers': customers,
-        'pos_statuses': pos_statuses,
     }
     return render(request, 'customers/customers_dashboard.html', context)
 
@@ -44,7 +72,41 @@ def customer_update(request, pk):
 @login_required
 def customer_delete(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
+    
     if request.method == 'POST':
-        customer.delete()
+        # Check for related invoices first
+        related_invoices = Invoice.objects.filter(customer=customer)
+        related_sales = Sale.objects.filter(customer=customer)
+        related_lendings = Lending.objects.filter(customer=customer)
+        
+        if related_invoices.exists():
+            # Cannot delete customer with invoices
+            invoice_count = related_invoices.count()
+            messages.error(
+                request, 
+                f'Cannot delete customer "{customer.name}" because they have {invoice_count} associated invoice(s). '
+                f'Please delete the invoices first or contact an administrator.'
+            )
+            return redirect('customer_dashboard')
+        
+        try:
+            customer.delete()
+            messages.success(request, f'Customer "{customer.name}" has been deleted successfully.')
+        except Exception as e:
+            messages.error(request, f'Error deleting customer: {str(e)}')
+        
         return redirect('customer_dashboard')
-    return render(request, 'customers/customer_confirm_delete.html', {'customer': customer})
+    
+    # For GET request, show confirmation page with related data info
+    related_invoices = Invoice.objects.filter(customer=customer)
+    related_sales = Sale.objects.filter(customer=customer)
+    related_lendings = Lending.objects.filter(customer=customer)
+    
+    context = {
+        'customer': customer,
+        'related_invoices': related_invoices,
+        'related_sales': related_sales,
+        'related_lendings': related_lendings,
+        'can_delete': not related_invoices.exists(),
+    }
+    return render(request, 'customers/customer_confirm_delete.html', context)

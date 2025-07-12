@@ -4,10 +4,85 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Delete Customer</h2>
-    <p>Are you sure you want to delete <strong>{{ customer.name }}</strong>?</p>
-    <form method="post">{% csrf_token %}
-        <button type="submit" class="btn btn-danger">Yes, delete</button>
-        <a href="{% url 'customer_dashboard' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Customer Information</h5>
+            <p><strong>Name:</strong> {{ customer.name }}</p>
+            <p><strong>Email:</strong> {{ customer.email }}</p>
+            <p><strong>Phone:</strong> {{ customer.phone }}</p>
+            <p><strong>Outstanding Balance:</strong> ${{ customer.outstanding_balance }}</p>
+            <p><strong>Total Purchases:</strong> ${{ customer.total_purchases }}</p>
+            <p><strong>Last Purchase:</strong> {{ customer.last_purchase|date:'Y-m-d'|default:'N/A' }}</p>
+        </div>
+    </div>
+    
+    {% if related_invoices or related_sales or related_lendings %}
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Related Data</h5>
+                
+                {% if related_invoices %}
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Associated Invoices ({{ related_invoices.count }})</h6>
+                        <p class="mb-2">This customer has invoices that prevent deletion:</p>
+                        <ul class="list-unstyled">
+                            {% for invoice in related_invoices %}
+                                <li><small>• {{ invoice.invoice_number }} - ${{ invoice.amount }} ({{ invoice.get_status_display }})</small></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                
+                {% if related_sales %}
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Associated Sales ({{ related_sales.count }})</h6>
+                        <p class="mb-0">These sales will be updated to remove customer reference.</p>
+                    </div>
+                {% endif %}
+                
+                {% if related_lendings %}
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Associated Lending Records ({{ related_lendings.count }})</h6>
+                        <p class="mb-0">These lending records will be deleted along with the customer.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="mt-3">
+        {% if can_delete %}
+            <div class="alert alert-danger">
+                <h6><i class="fas fa-exclamation-triangle"></i> Warning</h6>
+                <p class="mb-0">This action cannot be undone. All associated lending records will be permanently deleted.</p>
+            </div>
+            <form method="post">{% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Yes, delete customer
+                </button>
+                <a href="{% url 'customer_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </form>
+        {% else %}
+            <div class="alert alert-danger">
+                <h6><i class="fas fa-ban"></i> Cannot Delete</h6>
+                <p class="mb-0">This customer cannot be deleted because they have associated invoices. Please delete the invoices first or contact an administrator.</p>
+            </div>
+            <a href="{% url 'customer_dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %} 

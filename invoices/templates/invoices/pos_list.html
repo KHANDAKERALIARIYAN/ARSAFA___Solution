@@ -118,7 +118,7 @@
                     </td>
                     <td>{{ pos.date|date:"d M, Y" }}</td>
                     <td class="text-end">
-                        <a href="{% url 'pos_detail' pos.id %}" class="btn btn-sm btn-outline-primary" title="View"><i class="fas fa-eye"></i></a>
+                        <a href="{% url 'pos_detail' pos.id %}" class="btn btn-sm btn-outline-success" title="Add Sale"><i class="fas fa-plus"></i></a>
                         <a href="{% url 'pos_edit' pos.id %}" class="btn btn-sm btn-outline-secondary" title="Edit"><i class="fas fa-edit"></i></a>
                         <form method="post" action="{% url 'pos_delete' pos.id %}" style="display:inline;">
                             {% csrf_token %}

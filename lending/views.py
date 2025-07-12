@@ -3,6 +3,9 @@ from .models import Lending
 from .forms import LendingForm
 from django.db.models import Sum, Count
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from invoices.models import POS
+from sales.models import Sale
 
 @login_required
 def lending_dashboard(request):
@@ -46,7 +49,62 @@ def lending_update(request, pk):
 @login_required
 def lending_delete(request, pk):
     lending = get_object_or_404(Lending, pk=pk)
+    
     if request.method == 'POST':
-        lending.delete()
+        customer = lending.customer
+        customer_name = customer.name
+        customer_phone = customer.phone
+        
+        try:
+            # Find related POS bills for this customer
+            related_pos_bills = POS.objects.filter(
+                customer_name=customer_name,
+                contact_number=customer_phone
+            )
+            
+            # Find related sales for this customer
+            related_sales = Sale.objects.filter(customer=customer)
+            
+            # Count items to be deleted
+            pos_count = related_pos_bills.count()
+            sales_count = related_sales.count()
+            
+            # Delete related sales first (they reference POS)
+            for sale in related_sales:
+                sale.delete()
+            
+            # Delete related POS bills
+            for pos_bill in related_pos_bills:
+                pos_bill.delete()
+            
+            # Finally delete the lending record
+            lending.delete()
+            
+            # Show success message with details
+            message_parts = [f'Lending record for "{customer_name}" has been deleted successfully.']
+            if pos_count > 0:
+                message_parts.append(f'{pos_count} POS bill(s) deleted.')
+            if sales_count > 0:
+                message_parts.append(f'{sales_count} sale record(s) deleted.')
+            
+            messages.success(request, ' '.join(message_parts))
+            
+        except Exception as e:
+            messages.error(request, f'Error deleting lending record: {str(e)}')
+        
         return redirect('lending_dashboard')
-    return render(request, 'lending/lending_confirm_delete.html', {'lending': lending}) 
+    
+    # For GET request, show confirmation with related data info
+    customer = lending.customer
+    related_pos_bills = POS.objects.filter(
+        customer_name=customer.name,
+        contact_number=customer.phone
+    )
+    related_sales = Sale.objects.filter(customer=customer)
+    
+    context = {
+        'lending': lending,
+        'related_pos_bills': related_pos_bills,
+        'related_sales': related_sales,
+    }
+    return render(request, 'lending/lending_confirm_delete.html', context) 

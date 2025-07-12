@@ -1,21 +1,24 @@
 {% extends 'accounts/base.html' %}
 {% load static %}
 
-{% block title %}Sale {{ pos.pos_number }} | ARSAFA SOLUTION{% endblock %}
+{% block title %}Add Sale {{ pos.pos_number }} | ARSAFA SOLUTION{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="card">
+        <div class="card-header">
+            <h4 class="card-title mb-0">Add Sale - {{ pos.pos_number }}</h4>
+        </div>
         <div class="card-body">
             {% if messages %}
                 {% for message in messages %}
-                    {% if message.tags == 'success' %}
-                        <div class="text-success small">{{ message }}</div>
-                    {% elif message.tags == 'error' %}
-                        <div class="text-danger small">{{ message }}</div>
-                    {% endif %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 {% endfor %}
             {% endif %}
+            
             <div class="text-center mb-2">
                 <h2 style="font-weight:bold;">ARSAFA Supermarket</h2>
                 <div>123 Market Road, Dhaka | Phone: 018xx-xxxxxx</div>
@@ -58,6 +61,16 @@
                         <td>৳{{ item.unit_price|floatformat:2 }}</td>
                         <td>৳{{ item.total|floatformat:2 }}</td>
                     </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                            <p class="mb-0">No items in this sale.</p>
+                            {% if pos.status == 'unpaid' %}
+                            <small>Add items to enable payment.</small>
+                            {% endif %}
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot>
@@ -84,22 +97,32 @@
                     </tr>
                 </tfoot>
             </table>
+            
+            {% if pos.status == 'unpaid' %}
             <div class="mt-4">
                 <form method="post" class="d-inline">
                     {% csrf_token %}
                     <input type="hidden" name="update_status" value="1">
                     <div class="btn-group" role="group" aria-label="Payment Status">
-                        <button type="submit" name="status" value="paid" class="btn btn-success {% if pos.status == 'paid' %}active{% endif %}">Paid</button>
-                        <button type="submit" name="status" value="unpaid" class="btn btn-warning {% if pos.status == 'unpaid' %}active{% endif %}">Unpaid</button>
+                        {% if can_make_payment %}
+                        <button type="submit" name="status" value="paid" class="btn btn-success">Mark as Paid</button>
+                        {% else %}
+                        <button type="submit" name="status" value="paid" class="btn btn-secondary" disabled title="Add items to enable payment">Mark as Paid</button>
+                        {% endif %}
+                        <button type="submit" name="status" value="unpaid" class="btn btn-warning active">Keep as Unpaid</button>
                     </div>
                 </form>
-            </div>
+            {% endif %}
+            
             <div class="mt-4">
                 Thank you for shopping with ARSAFA!<br>
                 <b>Authorized Signature:</b> ______________________
             </div>
             <div class="text-end mt-3">
                 <button onclick="window.print()" class="btn btn-primary">Print Receipt</button>
+                {% if pos.status == 'unpaid' %}
+                <a href="{% url 'pos_list' %}" class="btn btn-secondary">Back to Sales</a>
+                {% endif %}
             </div>
         </div>
     </div>

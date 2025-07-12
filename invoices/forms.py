@@ -32,6 +32,23 @@ class POSForm(forms.ModelForm):
             raise forms.ValidationError("Email must be a @gmail.com address.")
         return email
 
+    def clean(self):
+        cleaned_data = super().clean()
+        customer_name = cleaned_data.get('customer_name')
+        contact_number = cleaned_data.get('contact_number')
+        
+        if customer_name and contact_number:
+            # Check if a customer with this phone number already exists
+            existing_customer = Customer.objects.filter(phone=contact_number).first()
+            if existing_customer:
+                if existing_customer.name != customer_name:
+                    raise forms.ValidationError(
+                        f"Customer already exists with this phone number ({contact_number}). "
+                        f"Please use the existing customer name '{existing_customer.name}' or choose a different phone number."
+                    )
+        
+        return cleaned_data
+
 class POSItemForm(forms.ModelForm):
     product = forms.ModelChoiceField(
         queryset=Product.objects.all(),

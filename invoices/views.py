@@ -151,6 +151,22 @@ def invoice_detail(request, invoice_id):
     return render(request, 'invoices/invoice_detail.html', {'invoice': invoice})
 
 @login_required
+def invoice_delete(request, invoice_id):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    if request.method == 'POST':
+        try:
+            # Delete all invoice items first
+            invoice.items.all().delete()
+            # Then delete the invoice
+            invoice.delete()
+            messages.success(request, 'Invoice deleted successfully.')
+            return redirect('invoice_list')
+        except Exception as e:
+            messages.error(request, f'Error deleting invoice: {str(e)}')
+            return redirect('invoice_detail', invoice_id=invoice_id)
+    return redirect('invoice_detail', invoice_id=invoice_id)
+
+@login_required
 def pos_list(request):
     pos_list = POS.objects.all()
     today = timezone.now().date()
@@ -237,21 +253,35 @@ def pos_edit(request, pos_id):
                 pass
             return redirect('pos_edit', pos_id=pos.id)
         elif 'make_payment' in request.POST:
+            # Check if POS has items before allowing payment
+            if items.count() == 0:
+                messages.error(request, 'Cannot make payment for an empty sale. Please add at least one item.')
+                return redirect('pos_edit', pos_id=pos.id)
+            
+            # Check if subtotal is greater than 0
+            if pos.subtotal <= 0:
+                messages.error(request, 'Cannot make payment for a sale with zero total. Please add items.')
+                return redirect('pos_edit', pos_id=pos.id)
+            
             pos.status = 'paid'
             pos.save()
-            # messages.success(request, 'Payment completed successfully.')
+            messages.success(request, 'Payment completed successfully.')
             return redirect('pos_detail', pos_id=pos.id)
 
     context = {
         'pos': pos,
         'items': items,
         'item_form': item_form,
+        'has_items': items.count() > 0,
+        'can_make_payment': items.count() > 0 and pos.subtotal > 0,
     }
     return render(request, 'invoices/pos_edit.html', context)
 
 @login_required
 def pos_detail(request, pos_id):
     pos = get_object_or_404(POS, id=pos_id)
+    items = pos.items.all()
+    
     if request.method == 'POST':
         if 'update_discount' in request.POST:
             discount = request.POST.get('discount', 0)
@@ -260,23 +290,34 @@ def pos_detail(request, pos_id):
                 if discount < 0:
                     raise ValueError('Discount cannot be negative')
                 if discount > pos.subtotal:
-                    # messages.error(request, 'Discount cannot exceed subtotal.')
-                    pass
+                    messages.error(request, 'Discount cannot exceed subtotal.')
                 else:
                     pos.discount = discount
                     pos.save()
-                    # messages.success(request, 'Discount updated successfully.')
+                    messages.success(request, 'Discount updated successfully.')
             except (ValueError, InvalidOperation):
-                # messages.error(request, 'Invalid discount amount.')
-                pass
+                messages.error(request, 'Invalid discount amount.')
         elif 'update_status' in request.POST:
             new_status = request.POST.get('status')
             if new_status in dict(POS.STATUS_CHOICES):
-                pos.status = new_status
-                pos.save()
-                # messages.success(request, f'Payment status updated to {new_status.title()}.')
+                # Check if trying to mark as paid without items
+                if new_status == 'paid' and items.count() == 0:
+                    messages.error(request, 'Cannot mark as paid for an empty sale. Please add items first.')
+                elif new_status == 'paid' and pos.subtotal <= 0:
+                    messages.error(request, 'Cannot mark as paid for a sale with zero total. Please add items.')
+                else:
+                    pos.status = new_status
+                    pos.save()
+                    messages.success(request, f'Payment status updated to {new_status.title()}.')
         return redirect('pos_detail', pos_id=pos.id)
-    return render(request, 'invoices/pos_detail.html', {'pos': pos})
+    
+    context = {
+        'pos': pos,
+        'items': items,
+        'has_items': items.count() > 0,
+        'can_make_payment': items.count() > 0 and pos.subtotal > 0,
+    }
+    return render(request, 'invoices/pos_detail.html', context)
 
 @login_required
 def pos_delete(request, pos_id):
@@ -301,4 +342,14 @@ def get_product_by_barcode(request, barcode):
     if product:
         return JsonResponse({'product_id': product.id, 'name': product.name, 'price': str(product.unit_price)})
     else:
-        return JsonResponse({'error': 'Not found'}, status=404) 
+        return JsonResponse({'error': 'Not found'}, status=404)
+
+@login_required
+def test_invoice_delete(request):
+    """Test view to verify invoice delete functionality"""
+    invoices = Invoice.objects.all()
+    context = {
+        'invoices': invoices,
+        'test_mode': True
+    }
+    return render(request, 'invoices/test_invoice_delete.html', context) 

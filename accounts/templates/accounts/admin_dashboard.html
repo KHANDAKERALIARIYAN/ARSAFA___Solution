@@ -134,9 +134,59 @@
         gap: 2rem;
         margin-top: 1.5rem;
     }
+    .alert-card {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .alert-card .alert-header {
+        font-weight: 600;
+        color: #856404;
+        margin-bottom: 0.5rem;
+    }
+    .alert-card .alert-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #ffeaa7;
+    }
+    .alert-card .alert-item:last-child {
+        border-bottom: none;
+    }
+    .alert-card .product-name {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+    .alert-card .quantity {
+        color: #e74c3c;
+        font-weight: 600;
+    }
+    .recent-activity .activity-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #ecf0f1;
+    }
+    .recent-activity .activity-item:last-child {
+        border-bottom: none;
+    }
+    .recent-activity .activity-type {
+        font-weight: 600;
+        color: #3498db;
+    }
+    .recent-activity .activity-amount {
+        font-weight: 600;
+        color: #27ae60;
+    }
+    .recent-activity .activity-time {
+        font-size: 0.85rem;
+        color: #95a5a6;
+    }
 </style>
-
-<!-- Removed dashboard-header block -->
 
 <!-- Stats -->
 <div class="row g-4 mb-4">
@@ -145,6 +195,12 @@
             <div class="icon bg-success"><i class="fas fa-dollar-sign"></i></div>
             <div class="label">Total Sales Today</div>
             <div class="value">৳{{ summary.total_sales_today|floatformat:2 }}</div>
+            {% if summary.daily_sales_breakdown %}
+            <small class="text-muted">
+                Paid: ৳{{ summary.daily_sales_breakdown.sales|add:summary.daily_sales_breakdown.pos_paid|floatformat:2 }}<br>
+                Unpaid: ৳{{ summary.daily_sales_breakdown.pos_unpaid|floatformat:2 }}
+            </small>
+            {% endif %}
         </div>
     </div>
     <div class="col-md-3">
@@ -168,6 +224,56 @@
             <div class="value">৳{{ summary.credit_balance|floatformat:2 }}</div>
         </div>
     </div>
+</div>
+
+<!-- Alerts and Activity Row -->
+<div class="row g-4 mb-4">
+    <!-- Low Stock Alerts -->
+    {% if summary.low_stock_products %}
+    <div class="col-lg-6">
+        <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div class="card-header bg-white" style="border-radius: 12px 12px 0 0; border-bottom: 1px solid #ecf0f1;">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle text-warning"></i> Low Stock Alerts</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert-card">
+                    <div class="alert-header">Products that need restocking:</div>
+                    {% for product in summary.low_stock_products %}
+                    <div class="alert-item">
+                        <span class="product-name">{{ product.name }}</span>
+                        <span class="quantity">{{ product.quantity }} left</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Recent Activity -->
+    {% if summary.recent_activity %}
+    <div class="col-lg-6">
+        <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div class="card-header bg-white" style="border-radius: 12px 12px 0 0; border-bottom: 1px solid #ecf0f1;">
+                <h5 class="mb-0"><i class="fas fa-clock text-info"></i> Recent Activity Today</h5>
+            </div>
+            <div class="card-body">
+                <div class="recent-activity">
+                    {% for activity in summary.recent_activity %}
+                    <div class="activity-item">
+                        <div>
+                            <span class="activity-type">{{ activity.type }}</span>
+                            <br>
+                            <small class="activity-time">{{ activity.reference }}</small>
+                        </div>
+                        <div class="activity-amount">৳{{ activity.amount|floatformat:2 }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <div class="row g-4">

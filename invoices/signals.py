@@ -7,6 +7,7 @@ from sales.models import Sale, SaleItem
 from decimal import Decimal
 from django.utils import timezone
 import logging
+from django.db.models import Sum
 
 logger = logging.getLogger(__name__)
 
@@ -44,42 +45,81 @@ def update_modules_on_pos_save(sender, instance, created, **kwargs):
             phone=instance.contact_number,
             defaults={
                 'email': instance.email or '',
-                'status': 'active',
             }
         )
         # Always update email if changed
         if instance.email and customer.email != instance.email:
             customer.email = instance.email
         
-        # Update total_purchases and outstanding_balance
-        if instance.status == 'paid':
-            customer.total_purchases += instance.total
-            customer.outstanding_balance = max(Decimal('0.00'), customer.outstanding_balance - instance.total)
-        else:
-            customer.outstanding_balance += instance.total
+        # Get all POS bills for this customer
+        all_pos_bills = POS.objects.filter(
+            customer_name=customer.name,
+            contact_number=customer.phone
+        )
+        
+        # Calculate totals
+        total_purchases = all_pos_bills.aggregate(total=Sum('total'))['total'] or 0
+        unpaid_pos_bills = all_pos_bills.filter(status='unpaid')
+        outstanding_balance = unpaid_pos_bills.aggregate(total=Sum('total'))['total'] or 0
+        
+        # Update customer data
+        customer.total_purchases = total_purchases
+        customer.outstanding_balance = outstanding_balance
         customer.last_purchase = instance.date.date()
         customer.save()
         logger.info(f"Customer {customer.name} updated for POS {instance.pos_number}")
 
-        # 2. Lending Module
+        # 2. Lending Module - Only for unpaid POS transactions
         if customer and instance.status == 'unpaid':
+            from datetime import timedelta
+            
+            # Set start date to today and due date to 30 days from today
+            start_date = instance.date.date()
+            due_date = start_date + timedelta(days=30)  # 30 days grace period
+            
+            # Get or create lending record
             lending, l_created = Lending.objects.get_or_create(
                 customer=customer,
                 status='active',
                 defaults={
-                    'amount': instance.total,
+                    'amount': outstanding_balance,  # Use total unpaid amount
                     'interest_rate': Decimal('0.00'),
-                    'start_date': instance.date.date(),
-                    'due_date': instance.date.date(),
-                    'notes': f'POS {instance.pos_number} unpaid.'
+                    'start_date': start_date,
+                    'due_date': due_date,
+                    'notes': f'POS {instance.pos_number} unpaid. Due in 30 days.'
                 }
             )
             if not l_created:
-                lending.amount += instance.total
+                # Update lending amount to total unpaid amount
+                lending.amount = outstanding_balance
                 lending.save()
             logger.info(f"Lending record {'created' if l_created else 'updated'} for POS {instance.pos_number}")
+        
+        # 2b. Remove lending record if POS is marked as paid
+        elif customer and instance.status == 'paid':
+            # Check if there are any unpaid POS bills for this customer
+            unpaid_pos_bills = POS.objects.filter(
+                customer_name=customer.name,
+                contact_number=customer.phone,
+                status='unpaid'
+            ).exclude(pk=instance.pk)  # Exclude current POS bill
+            
+            if not unpaid_pos_bills.exists():
+                # No unpaid bills left, remove lending record
+                lending_records = Lending.objects.filter(customer=customer)
+                for lending in lending_records:
+                    lending.delete()
+                    logger.info(f"Removed lending record for {customer.name} - all bills paid")
+            else:
+                # Still has unpaid bills, update lending amount
+                total_unpaid = unpaid_pos_bills.aggregate(total=Sum('total'))['total'] or 0
+                lending_records = Lending.objects.filter(customer=customer)
+                for lending in lending_records:
+                    lending.amount = total_unpaid
+                    lending.save()
+                    logger.info(f"Updated lending record for {customer.name} - amount: {total_unpaid}")
 
-        # 3. Sales Module
+        # 3. Sales Module - Only for paid POS transactions
         if instance.status == 'paid':
             customer = Customer.objects.filter(name=instance.customer_name, phone=instance.contact_number).first()
             sale, s_created = Sale.objects.get_or_create(
