@@ -19,6 +19,27 @@
         }
         .logo { max-width: 120px; }
         
+        /* Logo styling */
+        .navbar-brand img {
+            height: 70px;
+            width: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Responsive logo */
+        @media (max-width: 768px) {
+            .navbar-brand img {
+                height: 50px;
+            }
+            .navbar-brand {
+                font-size: 1rem;
+            }
+        }
+        
         /* Stylish Logout Button Styles */
         .logout-container {
             position: relative;
@@ -99,7 +120,10 @@
     {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
         <div class="container-fluid" style="max-width:1200px;">
-            <a class="navbar-brand fw-bold" href="{% url 'admin_dashboard' %}">ARSAFA SOLUTION</a>
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'admin_dashboard' %}">
+                <img src="{% static 'accounts/arsafa_logo.png' %}" alt="ARSAFA Logo" class="me-2" style="height: 70px; width: auto;">
+                ARSAFA SOLUTION
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>

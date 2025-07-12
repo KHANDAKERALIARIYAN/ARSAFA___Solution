@@ -475,9 +475,8 @@
                             <th>Category</th>
                             <th>Quantity</th>
                             <th>Unit Price</th>
-                            <th>Buying Price</th>
+                            <th>Batch Number</th>
                             <th>Expiry Date</th>
-                            <th>Input Date</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -489,20 +488,20 @@
                             <td>{{ product.get_category_display }}</td>
                             <td>{{ product.quantity }}</td>
                             <td>৳{{ product.unit_price }}</td>
-                            <td>{% if product.buying_price %}৳{{ product.buying_price }}{% else %}-{% endif %}</td>
+                            <td>{% if product.batch_number %}{{ product.batch_number }}{% else %}-{% endif %}</td>
                             <td>{% if product.expiry_date %}{{ product.expiry_date }}{% else %}-{% endif %}</td>
-                            <td>{% if product.input_date %}{{ product.input_date }}{% else %}-{% endif %}</td>
                             <td><span class="status-badge status-{{ product.status }}">{{ product.get_status_display }}</span></td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
-                                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                    <a href="{% url 'product_detail' product.pk %}" class="btn btn-sm btn-info" title="View Details"><i class="fas fa-eye"></i></a>
+                                    <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-primary" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-danger" title="Delete"><i class="fas fa-trash"></i></a>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="9" class="text-center">No products found.</td>
+                            <td colspan="8" class="text-center">No products found.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

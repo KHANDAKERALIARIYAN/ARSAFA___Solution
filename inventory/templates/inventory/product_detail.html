@@ -1,0 +1,313 @@
+{% extends 'accounts/base.html' %}
+{% load static %}
+{% block title %}Product Details | ARSAFA SOLUTION{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+
+<style>
+    .product-detail-container {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .detail-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .product-title {
+        color: #2d3748;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, #4a5568, #2d3748);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .back-btn {
+        background: linear-gradient(135deg, #4a5568, #2d3748);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(74, 85, 104, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+    
+    .detail-section {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .section-title {
+        color: #4a5568;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 8px;
+    }
+    
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .detail-value {
+        color: #2d3748;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-low {
+        background: linear-gradient(135deg, #f56565, #e53e3e);
+        color: white;
+    }
+    
+    .status-fair {
+        background: linear-gradient(135deg, #ed8936, #dd6b20);
+        color: white;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid #e2e8f0;
+    }
+    
+    .action-btn {
+        padding: 12px 24px;
+        border-radius: 15px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .action-btn.edit {
+        background: linear-gradient(135deg, #4299e1, #3182ce);
+        color: white;
+    }
+    
+    .action-btn.delete {
+        background: linear-gradient(135deg, #f56565, #e53e3e);
+        color: white;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.6s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @media (max-width: 768px) {
+        .product-title {
+            font-size: 1.8rem;
+        }
+        
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="product-detail-container">
+    <div class="container">
+        <div class="detail-card fade-in">
+            <!-- Header -->
+            <div class="detail-header">
+                <h1 class="product-title">📦 {{ product.name }}</h1>
+                <a href="{% url 'product_list' %}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Inventory
+                </a>
+            </div>
+            
+            <!-- Product Details Grid -->
+            <div class="detail-grid">
+                <!-- Basic Information -->
+                <div class="detail-section">
+                    <h3 class="section-title">📋 Basic Information</h3>
+                    <div class="detail-item">
+                        <span class="detail-label">Product Name</span>
+                        <span class="detail-value">{{ product.name }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Category</span>
+                        <span class="detail-value">{{ product.get_category_display }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="status-badge status-{{ product.status }}">{{ product.get_status_display }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Tag Name</span>
+                        <span class="detail-value">{% if product.tag_name %}{{ product.tag_name }}{% else %}-{% endif %}</span>
+                    </div>
+                </div>
+                
+                <!-- Inventory Information -->
+                <div class="detail-section">
+                    <h3 class="section-title">📦 Inventory Details</h3>
+                    <div class="detail-item">
+                        <span class="detail-label">Quantity</span>
+                        <span class="detail-value">{{ product.quantity }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Unit Price</span>
+                        <span class="detail-value">৳{{ product.unit_price }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Buying Price</span>
+                        <span class="detail-value">{% if product.buying_price %}৳{{ product.buying_price }}{% else %}-{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Total Value</span>
+                        <span class="detail-value">৳{{ total_value|floatformat:2 }}</span>
+                    </div>
+                </div>
+                
+                <!-- Tracking Information -->
+                <div class="detail-section">
+                    <h3 class="section-title">🔍 Tracking Information</h3>
+                    <div class="detail-item">
+                        <span class="detail-label">Barcode</span>
+                        <span class="detail-value">{% if product.barcode %}{{ product.barcode }}{% else %}-{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Batch Number</span>
+                        <span class="detail-value">{% if product.batch_number %}{{ product.batch_number }}{% else %}-{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Input Date</span>
+                        <span class="detail-value">{% if product.input_date %}{{ product.input_date }}{% else %}-{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Expiry Date</span>
+                        <span class="detail-value">{% if product.expiry_date %}{{ product.expiry_date }}{% else %}-{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'product_update' product.pk %}" class="action-btn edit">
+                    <i class="fas fa-edit"></i> Edit Product
+                </a>
+                <a href="{% url 'product_delete' product.pk %}" class="action-btn delete">
+                    <i class="fas fa-trash"></i> Delete Product
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Add smooth animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+});
+</script>
+
+{% endblock %} 

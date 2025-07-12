@@ -89,6 +89,16 @@ def product_update(request, pk):
     return render(request, 'inventory/product_form.html', {'form': form})
 
 @login_required
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    # Calculate total value
+    total_value = product.quantity * float(product.unit_price)
+    return render(request, 'inventory/product_detail.html', {
+        'product': product,
+        'total_value': total_value
+    })
+
+@login_required
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':

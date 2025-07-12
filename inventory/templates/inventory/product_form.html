@@ -317,6 +317,51 @@
                             </div>
                         </div>
                         
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="{{ form.barcode.id_for_label }}" class="form-label">
+                                        <i class="fas fa-barcode"></i> Barcode
+                                    </label>
+                                    {{ form.barcode }}
+                                    {% if form.barcode.errors %}
+                                        <div class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ form.barcode.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="{{ form.batch_number.id_for_label }}" class="form-label">
+                                        <i class="fas fa-hashtag"></i> Batch Number
+                                    </label>
+                                    {{ form.batch_number }}
+                                    {% if form.batch_number.errors %}
+                                        <div class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ form.batch_number.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="{{ form.tag_name.id_for_label }}" class="form-label">
+                                        <i class="fas fa-tags"></i> Tag Name
+                                    </label>
+                                    {{ form.tag_name }}
+                                    {% if form.tag_name.errors %}
+                                        <div class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ form.tag_name.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="form-actions">
                             <a href="{% url 'product_list' %}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Back to Inventory

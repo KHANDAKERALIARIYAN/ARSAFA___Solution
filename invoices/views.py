@@ -157,8 +157,9 @@ def pos_list(request):
     paid_pos = pos_list.filter(status='paid').count()
     unpaid_pos = pos_list.filter(status='unpaid').count()
     # Only paid POS for today
-    total_revenue = POS.objects.filter(status='paid', date__date=today).aggregate(Sum('total'))['total__sum'] or 0
-
+    # total_revenue = POS.objects.filter(status='paid', date__date=today).aggregate(Sum('total'))['total__sum'] or 0
+    total_revenue = POS.objects.aggregate(Sum('total'))['total__sum'] or 0
+    
     context = {
         'pos_list': pos_list,
         'total_pos': total_pos,
