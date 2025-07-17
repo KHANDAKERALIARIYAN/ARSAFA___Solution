@@ -8,33 +8,55 @@ from sales.models import Sale, SaleItem
 from invoices.models import POS, POSItem, Invoice, InvoiceItem
 from lending.models import Lending
 from inventory.models import Product
+from customers.models import Customer
+from employees.models import Employee
 
 # Create your views here.
 
 @user_passes_test(lambda u: u.is_superuser)
 def delete_all_data(request):
     if request.method == 'POST':
-        # Delete in order to respect foreign key constraints
-        SaleItem.objects.all().delete()
-        Sale.objects.all().delete()
-        POSItem.objects.all().delete()
-        POS.objects.all().delete()
-        InvoiceItem.objects.all().delete()
-        Invoice.objects.all().delete()
-        Lending.objects.all().delete()
-        Product.objects.all().delete()
-        messages.success(request, 'All sales, POS, invoices, lending records, and inventory have been deleted!')
+        try:
+            # Disable signals temporarily to prevent automatic recreation
+            from django.db.models.signals import post_save
+            from invoices.models import POS
+            from invoices.signals import update_modules_on_pos_save
+            
+            # Disconnect the signal
+            post_save.disconnect(update_modules_on_pos_save, sender=POS)
+            
+            try:
+                # Delete in order to respect foreign key constraints
+                # 1. Delete all related items first
+                SaleItem.objects.all().delete()
+                POSItem.objects.all().delete()
+                InvoiceItem.objects.all().delete()
+                
+                # 2. Delete main records
+                Sale.objects.all().delete()
+                POS.objects.all().delete()
+                Invoice.objects.all().delete()
+                Lending.objects.all().delete()
+                Product.objects.all().delete()
+                Customer.objects.all().delete()
+                Employee.objects.all().delete()
+                
+                messages.success(request, '✅ All data has been completely deleted! Your ARSAFA application is now fresh and ready for new data.')
+                
+            finally:
+                # Reconnect the signal
+                post_save.connect(update_modules_on_pos_save, sender=POS)
+            
+        except Exception as e:
+            messages.error(request, f'❌ Error deleting data: {str(e)}')
+            
     return redirect('admin_dashboard')
 
 def admin_dashboard(request):
     # Get today's date
     today = timezone.now().date()
     
-    # Calculate daily sales (from both Sale and POS models - including unpaid amounts)
-    daily_sales_sale = Sale.objects.filter(
-        date__date=today
-    ).aggregate(total=Sum('total_amount'))['total'] or 0
-    
+    # Calculate daily sales (only from POS models - including unpaid amounts)
     # Include both paid and unpaid POS amounts in daily sales
     daily_sales_pos_paid = POS.objects.filter(
         date__date=today,
@@ -46,8 +68,8 @@ def admin_dashboard(request):
         status='unpaid'
     ).aggregate(total=Sum('total'))['total'] or 0
     
-    # Total daily sales including unpaid amounts
-    total_daily_sales = daily_sales_sale + daily_sales_pos_paid + daily_sales_pos_unpaid
+    # Total daily sales (only from POS transactions)
+    total_daily_sales = daily_sales_pos_paid + daily_sales_pos_unpaid
     
     # Count low stock items (quantity < 50)
     low_stock_items = Product.objects.filter(quantity__lt=50).count()
@@ -63,32 +85,7 @@ def admin_dashboard(request):
         total=Sum('total')
     )['total'] or 0
     
-    # Get recent activity (last 5 transactions)
-    recent_sales = Sale.objects.filter(date__date=today).order_by('-date')[:5]
-    recent_pos = POS.objects.filter(date__date=today).order_by('-date')[:5]
-    
-    # Combine and sort recent activity
-    recent_activity = []
-    for sale in recent_sales:
-        recent_activity.append({
-            'type': 'Sale',
-            'amount': sale.total_amount,
-            'date': sale.date,
-            'reference': f"Sale #{sale.id}"
-        })
-    
-    for pos in recent_pos:
-        recent_activity.append({
-            'type': 'POS',
-            'amount': pos.total,
-            'date': pos.date,
-            'reference': pos.pos_number,
-            'status': pos.status
-        })
-    
-    # Sort by date (most recent first)
-    recent_activity.sort(key=lambda x: x['date'], reverse=True)
-    recent_activity = recent_activity[:5]
+
     
     # Prepare summary data
     summary = {
@@ -97,9 +94,7 @@ def admin_dashboard(request):
         'pending_invoices': pending_invoices,
         'credit_balance': credit_balance,
         'low_stock_products': low_stock_products,
-        'recent_activity': recent_activity,
         'daily_sales_breakdown': {
-            'sales': daily_sales_sale,
             'pos_paid': daily_sales_pos_paid,
             'pos_unpaid': daily_sales_pos_unpaid,
         }

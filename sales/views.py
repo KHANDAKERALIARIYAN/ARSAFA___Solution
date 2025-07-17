@@ -11,7 +11,7 @@ from invoices.models import POS
 from invoices.models import POSItem
 
 def sales_report(request):
-    period = request.GET.get('period', '30')
+    period = request.GET.get('period', '1')  # Default to 1 day (today)
     days = int(period)
 
     # --- Date Ranges ---
@@ -21,17 +21,18 @@ def sales_report(request):
     prev_start_date = prev_end_date - timedelta(days=days)
 
     # --- Summary Cards ---
-    sales = Sale.objects.filter(date__range=[start_date, end_date])
-    total_sales = sales.aggregate(total=Sum('total_amount'))['total'] or 0
-    total_orders = sales.count()
-    avg_order_value = sales.aggregate(avg=Avg('total_amount'))['avg'] or 0
+    # Count POS orders (these are the actual orders)
+    pos_orders = POS.objects.filter(date__range=[start_date, end_date]).count()
     
     # Include both paid and unpaid POS amounts in total sales
     paid_pos_total = POS.objects.filter(status='paid', date__range=[start_date, end_date]).aggregate(total=Sum('total'))['total'] or 0
     unpaid_pos_total = POS.objects.filter(status='unpaid', date__range=[start_date, end_date]).aggregate(total=Sum('total'))['total'] or 0
     
     # Total sales including both paid and unpaid amounts
-    total_sales_with_unpaid = total_sales + paid_pos_total + unpaid_pos_total
+    total_sales_with_unpaid = paid_pos_total + unpaid_pos_total
+    
+    # Total orders (only POS transactions count as orders)
+    total_orders = pos_orders
     
     new_customers = Customer.objects.filter(created_at__range=[start_date, end_date]).count()
 
@@ -49,11 +50,7 @@ def sales_report(request):
         current_day = week_start + timedelta(days=i)
         week_days.append(current_day)
         
-        # Get sales for this specific day (including both paid and unpaid)
-        day_sales = Sale.objects.filter(
-            date__date=current_day
-        ).aggregate(total=Sum('total_amount'))
-        
+        # Get POS sales for this specific day (both paid and unpaid)
         day_pos_paid = POS.objects.filter(
             date__date=current_day,
             status='paid'
@@ -64,8 +61,8 @@ def sales_report(request):
             status='unpaid'
         ).aggregate(total=Sum('total'))['total'] or 0
         
-        # Total daily sales including unpaid amounts
-        day_total = (day_sales['total'] or 0) + day_pos_paid + day_pos_unpaid
+        # Total daily sales (only from POS transactions)
+        day_total = day_pos_paid + day_pos_unpaid
         
         daily_sales_data.append({
             'day': current_day,
@@ -76,15 +73,7 @@ def sales_report(request):
     daily_totals = [float(data['total']) for data in daily_sales_data]
 
     # --- Top Selling Products Chart ---
-    # Include products from both sales and POS items
-    top_products_current = SaleItem.objects.filter(sale__date__range=[start_date, end_date]) \
-        .values('product__name', 'product__id') \
-        .annotate(
-            units_sold=Sum('quantity'),
-            revenue=Sum(F('quantity') * F('unit_price'))
-        )
-    
-    # Get POS items for the same period
+    # Only include products from POS items (the source of truth)
     pos_items = POSItem.objects.filter(pos__date__range=[start_date, end_date]) \
         .values('product__name', 'product__id') \
         .annotate(
@@ -92,23 +81,10 @@ def sales_report(request):
             revenue=Sum(F('quantity') * F('unit_price'))
         )
     
-    # Combine and aggregate the data
+    # Aggregate the data
     product_data = {}
     
-    # Add sales data
-    for item in top_products_current:
-        product_id = item['product__id']
-        if product_id not in product_data:
-            product_data[product_id] = {
-                'product__name': item['product__name'],
-                'units_sold': item['units_sold'],
-                'revenue': item['revenue']
-            }
-        else:
-            product_data[product_id]['units_sold'] += item['units_sold']
-            product_data[product_id]['revenue'] += item['revenue']
-    
-    # Add POS data
+    # Add POS data only
     for item in pos_items:
         product_id = item['product__id']
         if product_id not in product_data:

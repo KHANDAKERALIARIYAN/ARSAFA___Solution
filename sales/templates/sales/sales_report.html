@@ -412,9 +412,29 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h1 class="dashboard-title">📊 Sales Analytics Dashboard</h1>
-                    <p class="dashboard-subtitle">Comprehensive insights into your business performance and revenue trends</p>
+                    <p class="dashboard-subtitle">
+                        {% if selected_period == '1' %}
+                            Today's comprehensive insights into your business performance
+                        {% elif selected_period == '7' %}
+                            Last 7 days comprehensive insights into your business performance
+                        {% elif selected_period == '30' %}
+                            Last 30 days comprehensive insights into your business performance
+                        {% elif selected_period == '90' %}
+                            Last 90 days comprehensive insights into your business performance
+                        {% else %}
+                            Comprehensive insights into your business performance and revenue trends
+                        {% endif %}
+                    </p>
                 </div>
                 <div class="col-md-4 text-end">
+                    <form method="get" class="d-inline">
+                        <select name="period" class="period-selector" onchange="this.form.submit()">
+                            <option value="1" {% if selected_period == '1' %}selected{% endif %}>Today</option>
+                            <option value="7" {% if selected_period == '7' %}selected{% endif %}>Last 7 Days</option>
+                            <option value="30" {% if selected_period == '30' %}selected{% endif %}>Last 30 Days</option>
+                            <option value="90" {% if selected_period == '90' %}selected{% endif %}>Last 90 Days</option>
+                        </select>
+                    </form>
                 </div>
             </div>
         </div>
