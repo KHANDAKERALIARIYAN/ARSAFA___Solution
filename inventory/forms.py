@@ -4,7 +4,7 @@ from .models import Product
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'quantity', 'unit_price', 'buying_price', 'expiry_date', 'input_date', 'barcode']
+        fields = ['name', 'category', 'quantity', 'unit_price', 'buying_price', 'expiry_date', 'input_date', 'barcode', 'tag', 'batch', 'status']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),

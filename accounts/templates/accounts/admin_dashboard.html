@@ -277,7 +277,7 @@
                         <form method="post" action="{% url 'delete_all_data' %}" 
                               onsubmit="return confirm('Are you absolutely sure you want to delete ALL data? This action cannot be undone!');">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-lg" style="font-weight:bold; padding: 12px 24px;">
+                            <button type="submit" class="btn btn-danger btn-sm" style="font-weight:bold; padding: 4px 12px;">
                                 <i class="fas fa-trash-alt"></i> Reset Application
                             </button>
                         </form>
