@@ -39,6 +39,14 @@
     .dashboard-header p {
         color: #7f8c8d;
     }
+    .dashboard-clock {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #000;
+        margin-bottom: 1.5rem;
+        letter-spacing: 2px;
+    }
     .stat-card {
         background-color: #ffffff;
         border: none;
@@ -188,6 +196,9 @@
     }
 </style>
 
+<!-- Clock -->
+<div class="dashboard-clock" id="dashboardClock"></div>
+
 <!-- Stats -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
@@ -289,4 +300,19 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_body %}
+<script>
+function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const timeString = `${hours}:${minutes}:${seconds}`;
+    document.getElementById('dashboardClock').textContent = timeString;
+}
+setInterval(updateClock, 1000);
+updateClock();
+</script>
 {% endblock %}
