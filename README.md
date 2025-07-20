@@ -13,6 +13,7 @@ A Django-based ERP system for small and medium businesses, featuring admin login
 - **Customer Management**: Store customer info, purchase history, outstanding balances, and activity logs.
 - **Lending Module**: Track loans to customers, interest rates, due dates, and repayment status.
 - **Employee Info**: Manage employee records and access.
+- **Notes**: Take, view, update, and delete personal notes. Accessible from all pages via the navigation bar and dashboard quick access.
 - **Data Visualization**: Sales and inventory analytics using Chart.js (via CDN).
 - **Email Reminders**: (Planned) Send reminders for overdue invoices and lending.
 - **Data Management**: Admin commands to clear/reset data for testing or new deployments.
@@ -78,6 +79,12 @@ A Django-based ERP system for small and medium businesses, featuring admin login
 ### 10. Data Management & Utilities
 - **Management Commands:** Use Django’s command-line tools to add random data, clear/reset modules, and maintain data integrity.
 - **Bulk Operations:** Perform large-scale updates or deletions efficiently for testing or new deployments.
+
+### 11. Notes
+- **Create, View, Edit, Delete Notes:** Add personal notes for reminders, ideas, or tasks. Each note has a title, content, and timestamps.
+- **Table View:** All notes are displayed in a sortable table with quick action icons for view, edit, and delete.
+- **Universal Access:** Access the Notes feature from the main navigation bar or the admin dashboard quick access section.
+- **User-Friendly:** Clean interface for managing notes efficiently alongside other business modules.
 
 ---
 
