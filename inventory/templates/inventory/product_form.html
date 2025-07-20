@@ -330,6 +330,36 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.tag.id_for_label }}" class="form-label">
+                                        <i class="fas fa-tags"></i> Tag
+                                    </label>
+                                    {{ form.tag }}
+                                    {% if form.tag.errors %}
+                                        <div class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ form.tag.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.batch.id_for_label }}" class="form-label">
+                                        <i class="fas fa-layer-group"></i> Batch
+                                    </label>
+                                    {{ form.batch }}
+                                    {% if form.batch.errors %}
+                                        <div class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ form.batch.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="form-actions">
                             <a href="{% url 'product_list' %}" class="btn btn-secondary">
