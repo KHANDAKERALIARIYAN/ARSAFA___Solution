@@ -33,7 +33,7 @@ class Product(models.Model):
     buying_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     expiry_date = models.DateField(null=True, blank=True)
     input_date = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='good')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='fair')
     barcode = models.CharField(max_length=64, unique=True, blank=True, null=True)
     tag = models.CharField(max_length=50, blank=True, null=True)
     batch = models.CharField(max_length=50, blank=True, null=True)
