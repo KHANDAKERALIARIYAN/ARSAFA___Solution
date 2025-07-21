@@ -32,21 +32,22 @@ def product_list(request):
         products = products.order_by('-expiry_date')
     elif sort_query == 'category_asc':
         products = products.order_by('category')
-    low_stock_threshold = 10
+    low_stock_threshold = 50
     near_expiry_days = 7
     today = timezone.now().date()
     alerts = []
     for product in products:
         if product.quantity <= low_stock_threshold:
             alerts.append(f"Low stock: {product.name} ({product.quantity} left)")
-        if product.expiry_date:
-            days_to_expiry = (product.expiry_date - today).days
-            if 0 <= days_to_expiry <= near_expiry_days:
-                alerts.append(f"Near expiry: {product.name} (expires {product.expiry_date})")
+        # Remove near expiry alert logic
+        # if product.expiry_date:
+        #     days_to_expiry = (product.expiry_date - today).days
+        #     if 0 <= days_to_expiry <= near_expiry_days:
+        #         alerts.append(f"Near expiry: {product.name} (expires {product.expiry_date})")
 
     # New inventory management box logic
     low_stock_count = products.filter(quantity__lt=low_stock_threshold).count()
-    nearly_expire_count = products.filter(expiry_date__isnull=False, expiry_date__lte=today + timedelta(days=near_expiry_days)).count()
+    nearly_expire_count = products.filter(expiry_date__isnull=False, expiry_date__lte=today + timedelta(days=near_expiry_days), expiry_date__gte=today).count()
     total_product_count = products.count()
     total_price = sum([(p.quantity or 0) * float(p.unit_price or 0) for p in products])
 
