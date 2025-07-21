@@ -240,7 +240,6 @@
 <!-- Alerts and Activity Row -->
 <div class="row g-4 mb-4">
     <!-- Low Stock Alerts -->
-    {% if summary.low_stock_products %}
     <div class="col-lg-6">
         <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
             <div class="card-header bg-white" style="border-radius: 12px 12px 0 0; border-bottom: 1px solid #ecf0f1;">
@@ -249,19 +248,43 @@
             <div class="card-body">
                 <div class="alert-card">
                     <div class="alert-header">Products that need restocking:</div>
-                    {% for product in summary.low_stock_products %}
-                    <div class="alert-item">
-                        <span class="product-name">{{ product.name }}</span>
-                        <span class="quantity">{{ product.quantity }} left</span>
-                    </div>
-                    {% endfor %}
+                    {% if summary.low_stock_products and summary.low_stock_products|length > 0 %}
+                        {% for product in summary.low_stock_products %}
+                        <div class="alert-item">
+                            <span class="product-name">{{ product.name }}</span>
+                            <span class="quantity">{{ product.quantity }} left</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert-item">No low stock products.</div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-    {% endif %}
-    
-
+    <!-- Nearly Expiring Products Alerts -->
+    <div class="col-lg-6">
+        <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div class="card-header bg-white" style="border-radius: 12px 12px 0 0; border-bottom: 1px solid #ecf0f1;">
+                <h5 class="mb-0"><i class="fas fa-hourglass-half text-danger"></i> Nearly Expiring Products</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert-card">
+                    <div class="alert-header">Products expiring within 7 days:</div>
+                    {% if summary.nearly_expire_products and summary.nearly_expire_products|length > 0 %}
+                        {% for product in summary.nearly_expire_products %}
+                        <div class="alert-item">
+                            <span class="product-name">{{ product.name }}</span>
+                            <span class="quantity">{{ product.expiry_date }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert-item">No nearly expiring products.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row g-4">

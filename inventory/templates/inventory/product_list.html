@@ -353,6 +353,15 @@
         background-color: #dc3545 !important;
         color: #fff !important;
     }
+    /* Add green for good/fair stock rows */
+    .good-stock-row {
+        background-color: #38a169 !important;
+        color: #fff !important;
+    }
+    table.table tr.good-stock-row td {
+        background-color: #38a169 !important;
+        color: #fff !important;
+    }
     
     @media (max-width: 768px) {
         .dashboard-title {
@@ -486,7 +495,7 @@
                     </thead>
                     <tbody>
                         {% for product in products %}
-                        <tr{% if product.status == 'low' %} class="low-stock-row"{% endif %}>
+                        <tr{% if product.status == 'low' %} class="low-stock-row"{% else %} class="good-stock-row"{% endif %}>
                             <td>{{ product.name }}</td>
                             <td>{{ product.get_category_display }}</td>
                             <td>{{ product.quantity }}</td>

@@ -9,6 +9,7 @@ from customers.models import Customer
 from lending.models import Lending
 from django.utils import timezone
 from django.db.models import Sum
+from datetime import timedelta
 
 def custom_login(request):
     if request.user.is_authenticated:
@@ -30,8 +31,12 @@ def admin_dashboard(request):
     # Total sales today (paid POS)
     total_sales_today = POS.objects.filter(status='paid', date__date=today).aggregate(total=Sum('total'))['total'] or 0
     # Low stock items
-    low_stock_threshold = 10
+    low_stock_threshold = 50
     low_stock_items = Product.objects.filter(quantity__lte=low_stock_threshold).count()
+    # Low stock products for alert
+    low_stock_products = Product.objects.filter(quantity__lte=low_stock_threshold)
+    # Nearly expiring products (expiry within 7 days)
+    nearly_expire_products = Product.objects.filter(expiry_date__isnull=False, expiry_date__lte=today + timedelta(days=7), expiry_date__gte=today)
     # Pending invoices
     pending_invoices = Invoice.objects.filter(status='unpaid').count()
     # Credit balance (unpaid POS)
@@ -58,6 +63,8 @@ def admin_dashboard(request):
         'total_sales_today': total_sales_today,
         'sales_growth': 0,  # You can calculate growth if you want
         'low_stock_items': low_stock_items,
+        'low_stock_products': low_stock_products,
+        'nearly_expire_products': nearly_expire_products,
         'low_stock_change': 0,  # You can calculate change if you want
         'pending_invoices': pending_invoices,
         'pending_invoices_change': 0,  # You can calculate change if you want
