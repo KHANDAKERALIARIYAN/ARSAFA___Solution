@@ -196,9 +196,6 @@
     }
 </style>
 
-<!-- Clock -->
-<div class="dashboard-clock" id="dashboardClock"></div>
-
 <!-- Stats -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
@@ -326,16 +323,4 @@
 {% endblock %}
 
 {% block extra_body %}
-<script>
-function updateClock() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const timeString = `${hours}:${minutes}:${seconds}`;
-    document.getElementById('dashboardClock').textContent = timeString;
-}
-setInterval(updateClock, 1000);
-updateClock();
-</script>
 {% endblock %}

@@ -6,4 +6,5 @@ urlpatterns = [
     path('create/', views.lending_create, name='lending_create'),
     path('update/<int:pk>/', views.lending_update, name='lending_update'),
     path('delete/<int:pk>/', views.lending_delete, name='lending_delete'),
+    path('send-email/<int:pk>/', views.send_lending_email, name='send_lending_email'),
 ] 
