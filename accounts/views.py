@@ -61,15 +61,15 @@ def admin_dashboard(request):
         recent_activities.append({'type': 'customer', 'message': 'New customer added', 'detail': last_customer.name, 'time': last_customer.created_at.strftime('%b %d, %H:%M')})
     summary = {
         'total_sales_today': total_sales_today,
-        'sales_growth': 0,  # You can calculate growth if you want
+        'sales_growth': 0,  
         'low_stock_items': low_stock_items,
         'low_stock_products': low_stock_products,
         'nearly_expire_products': nearly_expire_products,
-        'low_stock_change': 0,  # You can calculate change if you want
+        'low_stock_change': 0, 
         'pending_invoices': pending_invoices,
-        'pending_invoices_change': 0,  # You can calculate change if you want
+        'pending_invoices_change': 0, 
         'credit_balance': credit_balance,
-        'credit_growth': 0,  # You can calculate growth if you want
+        'credit_growth': 0,  
     }
     return render(request, 'accounts/admin_dashboard.html', {'summary': summary, 'recent_activities': recent_activities})
 
