@@ -17,9 +17,11 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
             padding: 2rem; 
         }
-        .logo { max-width: 120px; }
+
+        .logo { 
+            max-width: 120px; 
+        }
         
-        /* Stylish Logout Button Styles */
         .logout-container {
             position: relative;
             margin-left: 20px;
@@ -113,6 +115,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'customer_dashboard' %}">Customers</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'lending_dashboard' %}">Lending</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'employee_list' %}">Employee Info</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'note_list' %}">Notes</a></li>
                 </ul>
                 <div class="logout-container">
                     <a href="{% url 'logout' %}" class="logout-btn" title="Logout">

@@ -1,0 +1,27 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Product Details | ARSAFA SOLUTION{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-box"></i> Product Details</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <tr><th>Name</th><td>{{ product.name }}</td></tr>
+                <tr><th>Category</th><td>{{ product.get_category_display }}</td></tr>
+                <tr><th>Quantity</th><td>{{ product.quantity }}</td></tr>
+                <tr><th>Unit Price</th><td>৳{{ product.unit_price }}</td></tr>
+                <tr><th>Buying Price</th><td>{% if product.buying_price %}৳{{ product.buying_price }}{% else %}-{% endif %}</td></tr>
+                <tr><th>Expiry Date</th><td>{% if product.expiry_date %}{{ product.expiry_date }}{% else %}-{% endif %}</td></tr>
+                <tr><th>Input Date</th><td>{% if product.input_date %}{{ product.input_date }}{% else %}-{% endif %}</td></tr>
+                <tr><th>Tag</th><td>{% if product.tag %}{{ product.tag }}{% else %}-{% endif %}</td></tr>
+                <tr><th>Batch</th><td>{% if product.batch %}{{ product.batch }}{% else %}-{% endif %}</td></tr>
+                <tr><th>Barcode</th><td>{% if product.barcode %}{{ product.barcode }}{% else %}-{% endif %}</td></tr>
+                <tr><th>Status</th><td><span class="badge bg-info">{{ product.get_status_display }}</span></td></tr>
+            </table>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left"></i> Back to Inventory</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

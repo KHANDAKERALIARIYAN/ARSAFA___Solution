@@ -12,8 +12,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-a5rug969=zii(*u)4oeh2nn&b!n4na5_#jrx)8baxl$(vp18$v'
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
     'lending',
     'invoices',
     'employees',
+    'notes',
 ]
 
 MIDDLEWARE = [
@@ -127,4 +132,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Login URL
 LOGIN_URL = 'custom_login'
-LOGIN_REDIRECT_URL = 'admin_dashboard' 
+LOGIN_REDIRECT_URL = 'admin_dashboard'
+
+# Email backend for development: print emails to console
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER 

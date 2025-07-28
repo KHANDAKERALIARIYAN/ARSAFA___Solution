@@ -4,7 +4,7 @@ from .models import Product
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'quantity', 'unit_price', 'buying_price', 'expiry_date', 'input_date', 'barcode']
+        fields = ['name', 'category', 'quantity', 'unit_price', 'buying_price', 'expiry_date', 'input_date', 'barcode', 'tag', 'batch', 'low_stock_threshold']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
@@ -14,4 +14,5 @@ class ProductForm(forms.ModelForm):
             'expiry_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'input_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'barcode': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Scan or enter barcode'}),
+            'low_stock_threshold': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
         } 

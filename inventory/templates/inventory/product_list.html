@@ -300,29 +300,6 @@
         text-decoration: none;
     }
     
-    .alert-card {
-        background: rgba(237, 137, 54, 0.1);
-        border: 2px solid rgba(237, 137, 54, 0.3);
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 25px;
-        backdrop-filter: blur(10px);
-    }
-    
-    .alert-title {
-        color: #dd6b20;
-        font-weight: 700;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .alert-list {
-        margin: 0;
-        padding-left: 20px;
-        color: #dd6b20;
-    }
     
     .fade-in {
         animation: fadeIn 0.6s ease-in;
@@ -351,6 +328,15 @@
     /* Make low stock row very prominent */
     table.table tr.low-stock-row td {
         background-color: #dc3545 !important;
+        color: #fff !important;
+    }
+    /* Add green for good/fair stock rows */
+    .good-stock-row {
+        background-color: #38a169 !important;
+        color: #fff !important;
+    }
+    table.table tr.good-stock-row td {
+        background-color: #38a169 !important;
         color: #fff !important;
     }
     
@@ -422,20 +408,6 @@
             </div>
         </div>
 
-        <!-- Alerts -->
-        {% if alerts %}
-        <div class="alert-card fade-in">
-            <div class="alert-title">
-                <i class="fas fa-exclamation-triangle"></i>
-                Inventory Alerts
-            </div>
-            <ul class="alert-list">
-                {% for alert in alerts %}
-                    <li>{{ alert }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
 
         <!-- Search -->
         <div class="search-card fade-in">
@@ -455,6 +427,9 @@
                         <option value="expiry_asc" {% if sort_query == 'expiry_asc' %}selected{% endif %}>Expiry Date: Ascending</option>
                         <option value="expiry_desc" {% if sort_query == 'expiry_desc' %}selected{% endif %}>Expiry Date: Descending</option>
                         <option value="category_asc" {% if sort_query == 'category_asc' %}selected{% endif %}>Category (A-Z)</option>
+                        <option value="quantity_asc" {% if sort_query == 'quantity_asc' %}selected{% endif %}>Quantity: Low to High</option>
+                        <option value="quantity_desc" {% if sort_query == 'quantity_desc' %}selected{% endif %}>Quantity: High to Low</option>
+                        <option value="status" {% if sort_query == 'status' %}selected{% endif %}>Status</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -475,34 +450,33 @@
                             <th>Category</th>
                             <th>Quantity</th>
                             <th>Unit Price</th>
-                            <th>Buying Price</th>
                             <th>Expiry Date</th>
-                            <th>Input Date</th>
+                            <th>Batch</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for product in products %}
-                        <tr{% if product.status == 'low' %} class="low-stock-row"{% endif %}>
+                        <tr{% if product.status == 'low' %} class="low-stock-row"{% else %} class="good-stock-row"{% endif %}>
                             <td>{{ product.name }}</td>
                             <td>{{ product.get_category_display }}</td>
                             <td>{{ product.quantity }}</td>
                             <td>৳{{ product.unit_price }}</td>
-                            <td>{% if product.buying_price %}৳{{ product.buying_price }}{% else %}-{% endif %}</td>
                             <td>{% if product.expiry_date %}{{ product.expiry_date }}{% else %}-{% endif %}</td>
-                            <td>{% if product.input_date %}{{ product.input_date }}{% else %}-{% endif %}</td>
+                            <td>{% if product.batch %}{{ product.batch }}{% else %}-{% endif %}</td>
                             <td><span class="status-badge status-{{ product.status }}">{{ product.get_status_display }}</span></td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
-                                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                                    <a href="{% url 'product_detail' product.pk %}" class="btn btn-sm btn-info" title="View"><i class="fas fa-eye"></i></a>
+                                    <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-primary" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-danger" title="Delete"><i class="fas fa-trash"></i></a>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="9" class="text-center">No products found.</td>
+                            <td colspan="8" class="text-center">No products found.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
