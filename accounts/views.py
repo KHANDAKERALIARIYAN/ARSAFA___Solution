@@ -8,7 +8,7 @@ from sales.models import Sale
 from customers.models import Customer
 from lending.models import Lending
 from django.utils import timezone
-from django.db.models import Sum
+from django.db.models import Sum, F
 from datetime import timedelta
 
 def custom_login(request):
@@ -30,11 +30,10 @@ def admin_dashboard(request):
     today = timezone.now().date()
     # Total sales today (paid POS)
     total_sales_today = POS.objects.filter(status='paid', date__date=today).aggregate(total=Sum('total'))['total'] or 0
-    # Low stock items
-    low_stock_threshold = 50
-    low_stock_items = Product.objects.filter(quantity__lte=low_stock_threshold).count()
-    # Low stock products for alert
-    low_stock_products = Product.objects.filter(quantity__lte=low_stock_threshold)
+    # Low stock items using product-specific thresholds
+    low_stock_items = Product.objects.filter(quantity__lt=F('low_stock_threshold')).count()
+    # Low stock products for alert using product-specific thresholds
+    low_stock_products = Product.objects.filter(quantity__lt=F('low_stock_threshold'))
     # Nearly expiring products (expiry within 7 days)
     nearly_expire_products = Product.objects.filter(expiry_date__isnull=False, expiry_date__lte=today + timedelta(days=7), expiry_date__gte=today)
     # Pending invoices

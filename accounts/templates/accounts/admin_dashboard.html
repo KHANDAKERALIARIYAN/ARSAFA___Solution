@@ -196,6 +196,22 @@
     }
 </style>
 
+<!-- Header with Logo and Welcome Message -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="dashboard-header">
+            <img src="{% static 'accounts/arsafa_logo.png' %}" alt="ARSAFA Logo" class="mb-3">
+            <h1 class="display-4 mb-2" style="font-weight: 700; color: #2c3e50;">
+                ARSAFA SOLUTION
+            </h1>
+            <h3 class="mb-3" style="font-weight: 600; color: #3498db;">
+                Welcome Admin
+            </h3>
+            <p class="lead text-muted">Your Complete ERP Management System</p>
+        </div>
+    </div>
+</div>
+
 <!-- Stats -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
@@ -234,6 +250,20 @@
     </div>
 </div>
 
+<!-- Second Row of Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon bg-danger"><i class="fas fa-calendar-times"></i></div>
+            <div class="label">Nearly Expiring (7 days)</div>
+            <div class="value">{{ summary.nearly_expiring_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <!-- Placeholder for future stats -->
+    </div>
+</div>
+
 <!-- Alerts and Activity Row -->
 <div class="row g-4 mb-4">
     <!-- Low Stock Alerts -->
@@ -259,24 +289,41 @@
             </div>
         </div>
     </div>
-    <!-- Nearly Expiring Products Alerts -->
+    
+    <!-- Nearly Expiring Products -->
     <div class="col-lg-6">
         <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
             <div class="card-header bg-white" style="border-radius: 12px 12px 0 0; border-bottom: 1px solid #ecf0f1;">
-                <h5 class="mb-0"><i class="fas fa-hourglass-half text-danger"></i> Nearly Expiring Products</h5>
+                <h5 class="mb-0"><i class="fas fa-calendar-times text-danger"></i> Nearly Expiring Products</h5>
             </div>
             <div class="card-body">
-                <div class="alert-card">
-                    <div class="alert-header">Products expiring within 7 days:</div>
-                    {% if summary.nearly_expire_products and summary.nearly_expire_products|length > 0 %}
-                        {% for product in summary.nearly_expire_products %}
-                        <div class="alert-item">
-                            <span class="product-name">{{ product.name }}</span>
-                            <span class="quantity">{{ product.expiry_date }}</span>
+                <div class="alert-card" style="background-color: #f8d7da; border: 1px solid #f5c6cb;">
+                    <div class="alert-header" style="color: #721c24;">Products expiring in next 7 days:</div>
+                    {% if summary.nearly_expiring_products and summary.nearly_expiring_products|length > 0 %}
+                        {% for product in summary.nearly_expiring_products %}
+                        <div class="alert-item" style="border-bottom: 1px solid #f5c6cb;">
+                            <div>
+                                <span class="product-name">{{ product.name }}</span>
+                                <br>
+                                <small class="text-muted">Qty: {{ product.quantity }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="quantity" style="color: #721c24;">{{ product.expiry_date|date:"M d, Y" }}</span>
+                                <br>
+                                <small class="text-muted">
+                                    {% with days_left=product.expiry_date|timeuntil %}
+                                        {% if "day" in days_left %}
+                                            {{ days_left|slice:":1" }} days left
+                                        {% else %}
+                                            Today
+                                        {% endif %}
+                                    {% endwith %}
+                                </small>
+                            </div>
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="alert-item">No nearly expiring products.</div>
+                        <div class="alert-item" style="border-bottom: none;">No products expiring in the next 7 days.</div>
                     {% endif %}
                 </div>
             </div>
