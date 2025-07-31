@@ -1,0 +1,34 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+
+  <h2>Welcome, {{ user.username }}!</h2>
+
+  <h3>Site Statistics</h3>
+  <ul>
+      <li>Total Products: {{ total_products }}</li>
+      <li>Total Sales: {{ total_sales }}</li>
+      <li>Total Customers: {{ total_customers }}</li>
+      <li>Total Employees: {{ total_employees }}</li>
+  </ul>
+
+  <h3>Recent Activities</h3>
+  <ul>
+      {% for activity in recent_activities %}
+          <li>{{ activity }}</li>
+      {% endfor %}
+  </ul>
+
+  <h2>Nearly Expiring Products</h2>
+  {% if nearly_expiring_products %}
+      <ul>
+      {% for product in nearly_expiring_products %}
+          <li>{{ product.name }} - Expires on {{ product.expiry_date }}</li>
+      {% endfor %}
+      </ul>
+  {% else %}
+      <p>No products are nearing expiration.</p>
+  {% endif %}
+
+{% endblock %}

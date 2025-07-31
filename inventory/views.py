@@ -4,6 +4,7 @@ from .models import Product
 from .forms import ProductForm
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
 
 # Create your views here.
 
@@ -32,21 +33,11 @@ def product_list(request):
         products = products.order_by('-expiry_date')
     elif sort_query == 'category_asc':
         products = products.order_by('category')
-    low_stock_threshold = 50
     near_expiry_days = 7
     today = timezone.now().date()
-    alerts = []
-    for product in products:
-        if product.quantity <= low_stock_threshold:
-            alerts.append(f"Low stock: {product.name} ({product.quantity} left)")
-        # Remove near expiry alert logic
-        # if product.expiry_date:
-        #     days_to_expiry = (product.expiry_date - today).days
-        #     if 0 <= days_to_expiry <= near_expiry_days:
-        #         alerts.append(f"Near expiry: {product.name} (expires {product.expiry_date})")
 
-    # New inventory management box logic
-    low_stock_count = products.filter(quantity__lt=low_stock_threshold).count()
+    # New inventory management box logic using product-specific thresholds
+    low_stock_count = products.filter(quantity__lt=F('low_stock_threshold')).count()
     nearly_expire_count = products.filter(expiry_date__isnull=False, expiry_date__lte=today + timedelta(days=near_expiry_days), expiry_date__gte=today).count()
     total_product_count = products.count()
     total_price = sum([(p.quantity or 0) * float(p.unit_price or 0) for p in products])
@@ -55,7 +46,6 @@ def product_list(request):
 
     return render(request, 'inventory/product_list.html', {
         'products': products,
-        'alerts': alerts,
         'search_query': search_query,
         'category_query': category_query,
         'sort_query': sort_query,
