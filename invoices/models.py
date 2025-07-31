@@ -28,6 +28,13 @@ class POS(models.Model):
     def save(self, *args, **kwargs):
         self.total = self.subtotal - self.discount
         super().save(*args, **kwargs)
+    
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        # Prevent paid status for zero or negative total amounts
+        if self.status == 'paid' and self.total <= 0:
+            raise ValidationError("Cannot mark as paid for a transaction with zero or negative total amount.")
+        super().clean()
 
     def get_related_invoice(self):
         """Get the related invoice for this POS"""
