@@ -264,12 +264,15 @@ def pos_edit(request, pos_id):
                 messages.error(request, 'Cannot make payment for a sale with zero total. Please add items.')
                 return redirect('pos_edit', pos_id=pos.id)
             
+            # Validate and save POS transaction when marking as paid
             pos.status = 'paid'
             try:
+                # Run model-level validation before saving
                 pos.full_clean()
                 pos.save()
                 messages.success(request, 'Payment completed successfully.')
             except ValidationError as e:
+                # Display validation errors and reset status if validation fails
                 messages.error(request, f'Cannot mark as paid: {", ".join(e.messages)}')
                 pos.status = 'unpaid'  # Reset status
                 pos.save()

@@ -26,10 +26,12 @@ class POS(models.Model):
         return self.pos_number
 
     def save(self, *args, **kwargs):
+        # Calculate total amount based on subtotal and discount before saving
         self.total = self.subtotal - self.discount
         super().save(*args, **kwargs)
     
     def clean(self):
+        # Model-level validation to ensure data integrity
         from django.core.exceptions import ValidationError
         # Prevent paid status for zero or negative total amounts
         if self.status == 'paid' and self.total <= 0:
