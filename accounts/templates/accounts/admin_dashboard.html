@@ -197,6 +197,7 @@
 </style>
 
 <!-- Header with Logo and Welcome Message -->
+
 <div class="row mb-4">
     <div class="col-12">
         <div class="dashboard-header">
@@ -207,13 +208,13 @@
             <h3 class="mb-3" style="font-weight: 600; color: #3498db;">
                 Welcome Admin
             </h3>
-            <p class="lead text-muted">Your Complete ERP Management System</p>
         </div>
     </div>
 </div>
 
 <!-- Stats -->
 <div class="row g-4 mb-4">
+
     <div class="col-md-3">
         <div class="stat-card">
             <div class="icon bg-success"><i class="fas fa-dollar-sign"></i></div>
@@ -227,6 +228,7 @@
             {% endif %}
         </div>
     </div>
+
     <div class="col-md-3">
         <div class="stat-card">
             <div class="icon bg-warning"><i class="fas fa-box-open"></i></div>
@@ -234,24 +236,7 @@
             <div class="value">{{ summary.low_stock_items }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="icon bg-danger"><i class="fas fa-file-invoice-dollar"></i></div>
-            <div class="label">Pending Invoices</div>
-            <div class="value">{{ summary.pending_invoices }}</div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="icon bg-info"><i class="fas fa-credit-card"></i></div>
-            <div class="label">Credit Balance</div>
-            <div class="value">৳{{ summary.credit_balance|floatformat:2 }}</div>
-        </div>
-    </div>
-</div>
 
-<!-- Second Row of Stats -->
-<div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="stat-card">
             <div class="icon bg-danger"><i class="fas fa-calendar-times"></i></div>
@@ -259,13 +244,22 @@
             <div class="value">{{ summary.nearly_expiring_count }}</div>
         </div>
     </div>
-    <div class="col-md-9">
-        <!-- Placeholder for future stats -->
+
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="icon bg-info"><i class="fas fa-credit-card"></i></div>
+            <div class="label">Credit Balance</div>
+            <div class="value">৳{{ summary.credit_balance|floatformat:2 }}</div>
+        </div>
     </div>
+
 </div>
 
+
 <!-- Alerts and Activity Row -->
+
 <div class="row g-4 mb-4">
+
     <!-- Low Stock Alerts -->
     <div class="col-lg-6">
         <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
@@ -332,6 +326,7 @@
 </div>
 
 <div class="row g-4">
+
     <!-- Navigation -->
     <div class="col-lg-12">
         <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
@@ -351,6 +346,7 @@
                 </div>
                 
                 <!-- Reset Application Section -->
+
                 <div class="row mt-4">
                     <div class="col-12 text-center">
                         <form method="post" action="{% url 'delete_all_data' %}" 
@@ -368,6 +364,5 @@
     </div>
 </div>
 {% endblock %}
-
 {% block extra_body %}
 {% endblock %}

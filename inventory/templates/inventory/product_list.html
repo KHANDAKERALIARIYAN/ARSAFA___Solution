@@ -361,11 +361,13 @@
 
 <div class="inventory-dashboard">
     <div class="container-fluid">
+
         <!-- Dashboard Header -->
+
         <div class="dashboard-header fade-in">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h1 class="dashboard-title">📦 Inventory Management</h1>
+                    <h1 class="dashboard-title"><pre>   Inventory Management</pre></h1>
                     <p class="dashboard-subtitle">Manage your product inventory with real-time insights and analytics</p>
                 </div>
                 <div class="col-md-4 text-end">
@@ -377,7 +379,10 @@
         </div>
 
         <!-- Inventory Management Boxes -->
+
         <div class="row mb-4 fade-in">
+
+            {% comment %} low stock  {% endcomment %}
             <div class="col-md-3 mb-3">
                 <div class="stats-card text-center">
                     <div class="stats-icon danger"><i class="fas fa-box-open"></i></div>
@@ -385,6 +390,8 @@
                     <div class="stats-label">Low Stock</div>
                 </div>
             </div>
+
+            {% comment %} nearly expire {% endcomment %}
             <div class="col-md-3 mb-3">
                 <div class="stats-card text-center">
                     <div class="stats-icon warning"><i class="fas fa-hourglass-half"></i></div>
@@ -392,6 +399,8 @@
                     <div class="stats-label">Nearly Expire</div>
                 </div>
             </div>
+
+            {% comment %} total product {% endcomment %}
             <div class="col-md-3 mb-3">
                 <div class="stats-card text-center">
                     <div class="stats-icon primary"><i class="fas fa-cubes"></i></div>
@@ -399,6 +408,8 @@
                     <div class="stats-label">Total Product</div>
                 </div>
             </div>
+            
+            {% comment %} total price {% endcomment %}
             <div class="col-md-3 mb-3">
                 <div class="stats-card text-center">
                     <div class="stats-icon success"><i class="fas fa-coins"></i></div>
@@ -406,10 +417,12 @@
                     <div class="stats-label">Total Price</div>
                 </div>
             </div>
+
         </div>
 
 
-        <!-- Search -->
+        <!-- Search Box -->
+
         <div class="search-card fade-in">
             <form method="get" class="row align-items-center">
                 <div class="col-md-7">
@@ -441,6 +454,7 @@
         </div>
 
         <!-- Inventory Table -->
+         
         <div class="card">
             <div class="card-body">
                 <table class="table table-hover">
