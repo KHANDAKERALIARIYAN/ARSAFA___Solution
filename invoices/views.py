@@ -14,6 +14,7 @@ from customers.models import Customer
 from django.views.decorators.http import require_GET
 from decimal import Decimal
 from decimal import InvalidOperation
+from django.core.exceptions import ValidationError
 
 @login_required
 def invoice_list(request):
@@ -264,8 +265,14 @@ def pos_edit(request, pos_id):
                 return redirect('pos_edit', pos_id=pos.id)
             
             pos.status = 'paid'
-            pos.save()
-            messages.success(request, 'Payment completed successfully.')
+            try:
+                pos.full_clean()
+                pos.save()
+                messages.success(request, 'Payment completed successfully.')
+            except ValidationError as e:
+                messages.error(request, f'Cannot mark as paid: {", ".join(e.messages)}')
+                pos.status = 'unpaid'  # Reset status
+                pos.save()
             return redirect('pos_detail', pos_id=pos.id)
 
     context = {
@@ -300,6 +307,9 @@ def pos_detail(request, pos_id):
         elif 'update_status' in request.POST:
             new_status = request.POST.get('status')
             if new_status in dict(POS.STATUS_CHOICES):
+                # Store the previous status for potential rollback
+                previous_status = pos.status
+                
                 # Check if trying to mark as paid without items
                 if new_status == 'paid' and items.count() == 0:
                     messages.error(request, 'Cannot mark as paid for an empty sale. Please add items first.')
@@ -307,8 +317,15 @@ def pos_detail(request, pos_id):
                     messages.error(request, 'Cannot mark as paid for a sale with zero total. Please add items.')
                 else:
                     pos.status = new_status
-                    pos.save()
-                    messages.success(request, f'Payment status updated to {new_status.title()}.')
+                    try:
+                        pos.full_clean()
+                        pos.save()
+                        messages.success(request, f'Payment status updated to {new_status.title()}.')
+                    except ValidationError as e:
+                        # Rollback to previous status
+                        pos.status = previous_status
+                        pos.save()
+                        messages.error(request, f'Cannot update status: {", ".join(e.messages)}')
         return redirect('pos_detail', pos_id=pos.id)
     
     context = {

@@ -50,6 +50,12 @@
                             </div>
                         </div>
 
+                        <div class="row mb-3">
+                           <div class="col-md-12">
+                               <button type="button" id="defaultCustomerBtn" class="btn btn-info">Use Default Customer</button>
+                           </div>
+                       </div>
+
                         <div class="text-end">
                             <a href="{% url 'pos_list' %}" class="btn btn-secondary">Cancel</a>
                             <button type="submit" class="btn btn-primary">Continue to Add Items</button>
@@ -60,4 +66,18 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+       const defaultCustomerBtn = document.getElementById('defaultCustomerBtn');
+       if (defaultCustomerBtn) {
+           defaultCustomerBtn.addEventListener('click', function() {
+               // Fill the form fields with default values
+               document.getElementById('id_customer_name').value = 'ADMIN';
+               document.getElementById('id_contact_number').value = '12345678900';
+               document.getElementById('id_email').value = 'admin@gmail.com';
+           });
+       }
+   });
+</script>
+{% endblock %}
