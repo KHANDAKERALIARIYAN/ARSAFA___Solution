@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
-from django.db.models import Sum, Q
+from django.db.models import Sum, F
+from datetime import timedelta
 from django.utils import timezone
-from datetime import datetime, timedelta
 from sales.models import Sale, SaleItem
 from invoices.models import POS, POSItem, Invoice, InvoiceItem
 from lending.models import Lending
@@ -71,11 +71,30 @@ def admin_dashboard(request):
     # Total daily sales (only from POS transactions)
     total_daily_sales = daily_sales_pos_paid + daily_sales_pos_unpaid
     
-    # Count low stock items (quantity < 50)
-    low_stock_items = Product.objects.filter(quantity__lt=50).count()
+    # Count low stock items using product-specific thresholds
+    low_stock_items = Product.objects.filter(
+        quantity__lt=F('low_stock_threshold')
+    ).count()
     
-    # Get low stock products for alerts
-    low_stock_products = Product.objects.filter(quantity__lt=50).order_by('quantity')[:5]
+    # Get low stock products for alerts using product-specific thresholds
+    low_stock_products = Product.objects.filter(
+        quantity__lt=F('low_stock_threshold')
+    ).order_by('quantity')[:5]
+    
+    # Get nearly expiring products (expiring in next 7 days)
+    seven_days_from_now = today + timedelta(days=7)
+    nearly_expiring_products = Product.objects.filter(
+        expiry_date__isnull=False,
+        expiry_date__lte=seven_days_from_now,
+        expiry_date__gte=today
+    ).order_by('expiry_date')[:10]
+    
+    # Count nearly expiring products
+    nearly_expiring_count = Product.objects.filter(
+        expiry_date__isnull=False,
+        expiry_date__lte=seven_days_from_now,
+        expiry_date__gte=today
+    ).count()
     
     # Count pending invoices
     pending_invoices = Invoice.objects.filter(status='unpaid').count()
@@ -85,7 +104,6 @@ def admin_dashboard(request):
         total=Sum('total')
     )['total'] or 0
     
-
     
     # Prepare summary data
     summary = {
@@ -94,10 +112,12 @@ def admin_dashboard(request):
         'pending_invoices': pending_invoices,
         'credit_balance': credit_balance,
         'low_stock_products': low_stock_products,
+        'nearly_expiring_products': nearly_expiring_products,
+        'nearly_expiring_count': nearly_expiring_count,
         'daily_sales_breakdown': {
             'pos_paid': daily_sales_pos_paid,
             'pos_unpaid': daily_sales_pos_unpaid,
-        }
+        },
     }
     
     return render(request, 'accounts/admin_dashboard.html', {'summary': summary})

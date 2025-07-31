@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from invoices.models import POS
 from sales.models import Sale
+from django.core.mail import send_mail
+from django.conf import settings
 
 @login_required
 def lending_dashboard(request):
@@ -108,3 +110,25 @@ def lending_delete(request, pk):
         'related_sales': related_sales,
     }
     return render(request, 'lending/lending_confirm_delete.html', context) 
+
+@login_required
+def send_lending_email(request, pk):
+    lending = get_object_or_404(Lending, pk=pk)
+    customer = lending.customer
+    if not customer.email:
+        messages.error(request, 'No email address found for this lender.')
+        return redirect('lending_dashboard')
+    subject = f'Repayment Reminder: Lending Amount Due'
+    message = f'Dear {customer.name},\n\nThis is a reminder that you have an outstanding lending amount of ৳{lending.amount} due on {lending.due_date}. Please pay back as soon as possible.\n\nThank you.\nARSAFA SOLUTION'
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@example.com',
+            [customer.email],
+            fail_silently=False,
+        )
+        messages.success(request, f'Email sent to {customer.email}')
+    except Exception as e:
+        messages.error(request, f'Failed to send email: {e}')
+    return redirect('lending_dashboard') 

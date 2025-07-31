@@ -37,10 +37,11 @@ class Product(models.Model):
     barcode = models.CharField(max_length=64, unique=True, blank=True, null=True)
     tag = models.CharField(max_length=50, blank=True, null=True)
     batch = models.CharField(max_length=50, blank=True, null=True)
+    low_stock_threshold = models.PositiveIntegerField(default=50, help_text='Set the quantity below which this product is considered low stock.')
 
     def save(self, *args, **kwargs):
-        # Automatically set status based on quantity
-        if self.quantity < 50:
+        # Automatically set status based on quantity and product-specific threshold
+        if self.quantity < self.low_stock_threshold:
             self.status = 'low'
         else:
             self.status = 'fair'

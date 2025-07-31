@@ -361,6 +361,24 @@
                             </div>
                         </div>
                         
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.low_stock_threshold.id_for_label }}" class="form-label">
+                                        <i class="fas fa-exclamation-triangle"></i> Low Stock Threshold
+                                    </label>
+                                    {{ form.low_stock_threshold }}
+                                    {% if form.low_stock_threshold.errors %}
+                                        <div class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ form.low_stock_threshold.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">Set the quantity below which this product is considered low stock (default: 50)</small>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="form-actions">
                             <a href="{% url 'product_list' %}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Back to Inventory
