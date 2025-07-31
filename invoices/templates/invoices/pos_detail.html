@@ -121,7 +121,7 @@
             <div class="text-end mt-3">
                 <button onclick="window.print()" class="btn btn-primary">Print Receipt</button>
                 {% if pos.status == 'unpaid' %}
-                <a href="{% url 'pos_list' %}" class="btn btn-secondary">Back to Sales</a>
+                <a href="{% url 'pos_edit' pos.id %}" class="btn btn-secondary">Back to Edit Sale</a>
                 {% endif %}
             </div>
         </div>
