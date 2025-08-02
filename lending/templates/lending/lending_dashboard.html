@@ -71,12 +71,11 @@
                             <tr>
                                 <th>Customer</th>
                                 <th>Amount</th>
-                                <th>Interest Rate</th>
                                 <th>Start Date</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
                                 <th>Notes</th>
+                                <th>Status</th>
                                 <th>Actions</th>
+                                <th>Email Sent</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,9 +83,8 @@
                             <tr>
                                 <td>{{ l.customer.name }}</td>
                                 <td>৳{{ l.amount|floatformat:2 }}</td>
-                                <td>{{ l.interest_rate }}%</td>
                                 <td>{{ l.start_date|date:'Y-m-d' }}</td>
-                                <td>{{ l.due_date|date:'Y-m-d' }}</td>
+                                <td>{{ l.notes|default:'-' }}</td>
                                 <td>
                                     {% if l.status == 'active' %}
                                         <span class="badge bg-success">Active</span>
@@ -96,7 +94,6 @@
                                         <span class="badge bg-danger">Overdue</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ l.notes|default:'-' }}</td>
                                 <td>
                                     <a href="{% url 'lending_update' l.pk %}" class="text-success me-2"><i class="bi bi-pencil-square"></i></a>
                                     <a href="{% url 'lending_delete' l.pk %}" class="text-danger"><i class="bi bi-trash"></i></a>
