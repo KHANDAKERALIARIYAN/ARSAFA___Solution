@@ -7,6 +7,22 @@
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
     <div class="container-fluid" style="max-width:1200px;">
+        <!-- Logo on the left -->
+        <div class="navbar-brand">
+            <img src="{% static 'accounts/arsafa_logo.png' %}" alt="ARSAFA Logo" style="height: 40px; width: auto;">
+        </div>
+        
+        <!-- Clock in the middle -->
+        <div class="navbar-clock">
+            <div class="clock-display" id="navbar-time">
+                <span class="hours" id="navbar-hours">00</span>
+                <span class="separator">:</span>
+                <span class="minutes" id="navbar-minutes">00</span>
+                <span class="separator">:</span>
+                <span class="seconds" id="navbar-seconds">00</span>
+            </div>
+        </div>
+        
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -21,6 +37,32 @@
     </div>
 </nav>
 {% endblock navbar %}
+
+{% block extra_head %}
+<script>
+// Clock functionality
+function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    const hoursElement = document.getElementById('navbar-hours');
+    const minutesElement = document.getElementById('navbar-minutes');
+    const secondsElement = document.getElementById('navbar-seconds');
+    
+    if (hoursElement) hoursElement.textContent = hours;
+    if (minutesElement) minutesElement.textContent = minutes;
+    if (secondsElement) secondsElement.textContent = seconds;
+}
+
+// Start clock when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    updateClock();
+    setInterval(updateClock, 1000);
+});
+</script>
+{% endblock %}
 
 {% block content %}
 <style>
@@ -39,13 +81,37 @@
     .dashboard-header p {
         color: #7f8c8d;
     }
-    .dashboard-clock {
+    .navbar-clock {
+        flex: 1;
         text-align: center;
-        font-size: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .clock-display {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        font-size: 1.2rem;
         font-weight: 600;
-        color: #000;
-        margin-bottom: 1.5rem;
-        letter-spacing: 2px;
+        color: #2c3e50;
+        letter-spacing: 1px;
+    }
+    .clock-display .hours,
+    .clock-display .minutes,
+    .clock-display .seconds {
+        display: inline-block;
+        min-width: 25px;
+        text-align: center;
+    }
+    .clock-display .separator {
+        animation: blink 1s infinite;
+        opacity: 0.7;
+    }
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.3; }
     }
     .stat-card {
         background-color: #ffffff;
@@ -53,7 +119,7 @@
         border-radius: 12px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         transition: all 0.3s ease;
-        padding: 1.5rem;
+        padding: 1rem;
         height: 100%;
     }
     .stat-card:hover {
@@ -61,23 +127,23 @@
         box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     }
     .stat-card .icon {
-        font-size: 2rem;
-        width: 60px;
-        height: 60px;
-        line-height: 60px;
+        font-size: 1.5rem;
+        width: 45px;
+        height: 45px;
+        line-height: 45px;
         text-align: center;
         border-radius: 50%;
         color: #fff;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
     }
     .stat-card .label {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         color: #7f8c8d;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     .stat-card .value {
-        font-size: 2rem;
+        font-size: 1.5rem;
         font-weight: 700;
         color: #2c3e50;
     }
@@ -196,21 +262,9 @@
     }
 </style>
 
-<!-- Header with Logo and Welcome Message -->
 
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="dashboard-header">
-            <img src="{% static 'accounts/arsafa_logo.png' %}" alt="ARSAFA Logo" class="mb-3">
-            <h1 class="display-4 mb-2" style="font-weight: 700; color: #2c3e50;">
-                ARSAFA SOLUTION
-            </h1>
-            <h3 class="mb-3" style="font-weight: 600; color: #3498db;">
-                Welcome Admin
-            </h3>
-        </div>
-    </div>
-</div>
+
+
 
 <!-- Stats -->
 <div class="row g-4 mb-4">
@@ -364,5 +418,6 @@
     </div>
 </div>
 {% endblock %}
+
 {% block extra_body %}
 {% endblock %}

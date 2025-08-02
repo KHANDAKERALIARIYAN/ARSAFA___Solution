@@ -3,7 +3,10 @@
 {% block header %}Employee Info{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <a href="{% url 'employee_create' %}" class="btn btn-success mb-3"><i class="fas fa-plus me-1"></i> Add Employee</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-4 fw-bold text-dark">Employee Module</h1>
+        <a href="{% url 'employee_create' %}" class="btn btn-success"><i class="fas fa-plus me-1"></i> Add Employee</a>
+    </div>
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
