@@ -1,9 +1,97 @@
 {% extends 'accounts/base.html' %}
 {% block content %}
-  <h2>{{ note.title }}</h2>
-  <p>{{ note.content }}</p>
-  <p><small>Created: {{ note.created_at }} | Updated: {{ note.updated_at }}</small></p>
-  <a href="{% url 'note_update' note.pk %}" class="btn btn-warning">Edit</a>
-  <a href="{% url 'note_delete' note.pk %}" class="btn btn-danger">Delete</a>
-  <a href="{% url 'note_list' %}" class="btn btn-secondary">Back to Notes</a>
+<style>
+  body {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    min-height: 100vh;
+  }
+  .note-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+  }
+  .note-title {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .note-content {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    background: rgba(255,255,255,0.8);
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  .note-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .btn-custom {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  .btn-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    text-decoration: none;
+  }
+  .btn-edit {
+    background: linear-gradient(135deg, #ffc107, #ff8f00);
+    color: white;
+    border: none;
+  }
+  .btn-delete {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    border: none;
+  }
+  .btn-back {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+    border: none;
+  }
+</style>
+
+<div class="note-card">
+  <h1 class="note-title">{{ note.title }}</h1>
+  <div class="note-content">
+    {{ note.content|linebreaks }}
+  </div>
+  <div class="note-meta">
+    <i class="fas fa-calendar-plus"></i> Created: {{ note.created_at|date:"M d, Y, g:i A" }}<br>
+    <i class="fas fa-calendar-check"></i> Updated: {{ note.updated_at|date:"M d, Y, g:i A" }}
+  </div>
+  <div class="action-buttons">
+    <a href="{% url 'note_update' note.pk %}" class="btn btn-custom btn-edit">
+      <i class="fas fa-edit"></i> Edit
+    </a>
+    <a href="{% url 'note_delete' note.pk %}" class="btn btn-custom btn-delete">
+      <i class="fas fa-trash-alt"></i> Delete
+    </a>
+    <a href="{% url 'note_list' %}" class="btn btn-custom btn-back">
+      <i class="fas fa-arrow-left"></i> Back to Notes
+    </a>
+  </div>
+</div>
 {% endblock %} 
