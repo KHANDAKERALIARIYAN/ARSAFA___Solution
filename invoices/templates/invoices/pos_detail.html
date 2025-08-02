@@ -121,6 +121,7 @@
             <div class="text-end mt-3">
                 <button onclick="window.print()" class="btn btn-primary">Print Receipt</button>
                 {% if pos.status == 'unpaid' %}
+                <!-- Navigation button to return to the sale editing page to preserve added items -->
                 <a href="{% url 'pos_edit' pos.id %}" class="btn btn-secondary">Back to Edit Sale</a>
                 {% endif %}
             </div>

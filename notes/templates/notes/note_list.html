@@ -1,8 +1,21 @@
 {% extends 'accounts/base.html' %}
 {% block content %}
+<<<<<<< HEAD
   <h2><pre>     Business Notes    </pre></h2>
   <p>Secure your thoughts before they escape by taking note's </p>
   <a href="{% url 'note_create' %}" class="btn btn-primary mb-3">Add Note</a>
+=======
+<style>
+  body {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    min-height: 100vh;
+  }
+</style>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="display-4 fw-bold text-dark">Notes</h1>
+    <a href="{% url 'note_create' %}" class="btn btn-primary">Add Note</a>
+  </div>
+>>>>>>> 215d1e48b11faa47d28a596db4f1a31cc305640d
   <table class="table table-striped table-bordered">
     <thead>
       <tr>
