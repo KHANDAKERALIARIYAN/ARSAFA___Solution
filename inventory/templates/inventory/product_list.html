@@ -262,7 +262,7 @@
     }
     
     .status-fair {
-        background: linear-gradient(135deg, #ed8936, #dd6b20);
+        background: linear-gradient(135deg, #48bb78, #38a169);
         color: white;
     }
     
@@ -330,14 +330,14 @@
         background-color: #dc3545 !important;
         color: #fff !important;
     }
-    /* Add green for good/fair stock rows */
+    /* Remove green background for good/fair stock rows - use normal colors */
     .good-stock-row {
-        background-color: #38a169 !important;
-        color: #fff !important;
+        background-color: transparent !important;
+        color: inherit !important;
     }
     table.table tr.good-stock-row td {
-        background-color: #38a169 !important;
-        color: #fff !important;
+        background-color: transparent !important;
+        color: inherit !important;
     }
     
     @media (max-width: 768px) {
