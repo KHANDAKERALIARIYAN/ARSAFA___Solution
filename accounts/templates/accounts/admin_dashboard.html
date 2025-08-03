@@ -6,7 +6,7 @@
 
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-    <div class="container-fluid" style="max-width:1200px;">
+    <div class="container-fluid" style="max-width:1200px; position: relative;">
         <!-- Logo on the left -->
         <div class="navbar-brand">
             <img src="{% static 'accounts/arsafa_logo.png' %}" alt="ARSAFA Logo" style="height: 40px; width: auto;">
@@ -40,7 +40,7 @@
 
 {% block extra_head %}
 <script>
-// Clock functionality
+// Clock and date functionality
 function updateClock() {
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
@@ -56,10 +56,26 @@ function updateClock() {
     if (secondsElement) secondsElement.textContent = seconds;
 }
 
-// Start clock when DOM is ready
+function updateDate() {
+    const now = new Date();
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    const dateString = now.toLocaleDateString('en-US', options);
+    
+    const dateElement = document.getElementById('navbar-date-text');
+    if (dateElement) dateElement.textContent = dateString;
+}
+
+// Start clock and date when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     updateClock();
+    updateDate();
     setInterval(updateClock, 1000);
+    setInterval(updateDate, 60000); // Update date every minute
 });
 </script>
 {% endblock %}
@@ -87,12 +103,12 @@ document.addEventListener('DOMContentLoaded', function() {
         display: flex;
         justify-content: center;
         align-items: center;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
     }
     .clock-display {
-        background-color: #ffffff;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 1rem 1.5rem;
         font-size: 1.2rem;
         font-weight: 600;
         color: #2c3e50;
