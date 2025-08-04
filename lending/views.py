@@ -119,7 +119,7 @@ def send_lending_email(request, pk):
         messages.error(request, 'No email address found for this lender.')
         return redirect('lending_dashboard')
     subject = f'Repayment Reminder: Lending Amount Due'
-    message = f'Dear {customer.name},\n\nThis is a reminder that you have an outstanding lending amount of ৳{lending.amount} due on {lending.due_date}. Please pay back as soon as possible.\n\nThank you.\nARSAFA SOLUTION'
+    message = f'Dear {customer.name},\n\nThis is a reminder that you have a due amount of ৳{lending.amount} due on {lending.due_date}. Please pay back as soon as possible.\n\nThank you.\nARSAFA SOLUTION'
     try:
         send_mail(
             subject,
