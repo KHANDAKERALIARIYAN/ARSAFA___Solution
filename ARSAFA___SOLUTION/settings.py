@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-a5rug969=zii(*u)4oeh2nn&b!n4na5_#jrx)8baxl$(vp18$v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['arsafa-solution.onrender.com', 'localhost', '127.0.0.1','*']
 
 
 # Application definition
@@ -116,6 +116,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://arsafa-solution.onrender.com'
+]
 
 
 # Static files (CSS, JavaScript, Images)
