@@ -23,9 +23,13 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = 'django-insecure-a5rug969=zii(*u)4oeh2nn&b!n4na5_#jrx)8baxl$(vp18$v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['arsafa-solution.onrender.com', 'localhost', '127.0.0.1','*']
+ALLOWED_HOSTS = [
+    'arsafa-solution.onrender.com',
+    'www.arsafa-solution.onrender.com',
+    '*'
+]
 
 
 # Application definition
@@ -118,7 +122,7 @@ USE_I18N = True
 USE_TZ = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://arsafa-solution.onrender.com'
+    'https://arsafa-solution.onrender.com',
 ]
 
 
