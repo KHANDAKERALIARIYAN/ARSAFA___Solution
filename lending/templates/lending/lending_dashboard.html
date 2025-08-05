@@ -62,6 +62,26 @@
         </div>
     </div>
 
+    <!-- SEARCH BAR START -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-center">
+            <form method="get" class="d-flex w-50">
+                <input
+                    type="text"
+                    name="q"
+                    class="form-control me-2"
+                    placeholder="Search lendings by customer name"
+                    value="{{ query|default:'' }}"
+                >
+                <button type="submit" class="btn btn-primary">Search</button>
+                {% if query %}
+                <a href="{% url 'lending_dashboard' %}" class="btn btn-secondary ms-2">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <!-- SEARCH BAR END -->
+
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
