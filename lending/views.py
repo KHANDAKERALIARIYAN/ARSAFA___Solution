@@ -128,6 +128,9 @@ def send_lending_email(request, pk):
             [customer.email],
             fail_silently=False,
         )
+        lending.email_sent_count += 1
+        lending.save()
+
         messages.success(request, f'Email sent to {customer.email}')
     except Exception as e:
         messages.error(request, f'Failed to send email: {e}')
