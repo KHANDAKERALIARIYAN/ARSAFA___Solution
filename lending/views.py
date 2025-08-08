@@ -11,19 +11,30 @@ from django.conf import settings
 
 @login_required
 def lending_dashboard(request):
+    query = request.GET.get('q', '').strip()
+
     total_lendings = Lending.objects.count()
     active_lendings = Lending.objects.filter(status='active').count()
     total_amount = Lending.objects.aggregate(total=Sum('amount'))['total'] or 0
     outstanding = Lending.objects.filter(status__in=['active', 'overdue']).aggregate(total=Sum('amount'))['total'] or 0
-    lendings = Lending.objects.select_related('customer').all().order_by('-start_date')
+    
+    lendings = Lending.objects.select_related('customer').all()
+
+    if query:
+        lendings = lendings.filter(customer__name__icontains=query)
+
+    lendings = lendings.order_by('-start_date')
+
     context = {
         'total_lendings': total_lendings,
         'active_lendings': active_lendings,
         'total_amount': total_amount,
         'outstanding': outstanding,
         'lendings': lendings,
+        'query': query,
     }
     return render(request, 'lending/lending_dashboard.html', context)
+
 
 @login_required
 def lending_create(request):
@@ -128,6 +139,9 @@ def send_lending_email(request, pk):
             [customer.email],
             fail_silently=False,
         )
+        lending.email_sent_count += 1
+        lending.save()
+
         messages.success(request, f'Email sent to {customer.email}')
     except Exception as e:
         messages.error(request, f'Failed to send email: {e}')

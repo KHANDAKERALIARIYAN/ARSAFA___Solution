@@ -14,6 +14,7 @@ class Lending(models.Model):
     due_date = models.DateField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
     notes = models.TextField(blank=True)
+    email_sent_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.customer.name} - {self.amount} ({self.status})" 
