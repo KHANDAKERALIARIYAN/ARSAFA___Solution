@@ -1,59 +1,82 @@
 {% extends 'accounts/base.html' %}
+
 {% block title %}Lending Management | ARSAFA SOLUTION{% endblock %}
+
 {% block header %}Lending Management{% endblock %}
+
 {% block content %}
+<!-- Main container fluid for full width layout -->
 <div class="container-fluid">
+
+    <!-- Display any Django messages like success or error -->
     {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
-        role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    {% endfor %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <!-- Button to close alert -->
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
     {% endif %}
+
+    <!-- Header row with page title and Add Lending button -->
     <div class="row mb-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h1 class="display-4 fw-bold text-dark">Lending Management</h1>
+            <!-- Button linking to lending creation page -->
             <a href="{% url 'lending_create' %}" class="btn btn-primary btn-lg">
                 <i class="fas fa-plus me-2"></i>Add Lending
             </a>
         </div>
     </div>
+
+    <!-- Summary cards row showing key lending statistics -->
     <div class="row mb-4">
+
+        <!-- Total Lendings card -->
         <div class="col-md-4 mb-2">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
+                        <!-- Icon for Total Lendings -->
                         <div class="me-3"><i class="bi bi-cash-coin fs-2 text-primary"></i></div>
                         <div>
                             <div class="text-muted">Total Lendings</div>
+                            <!-- Display total lendings count -->
                             <div class="fs-4 fw-bold">{{ total_lendings }}</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Active Lendings card -->
         <div class="col-md-4 mb-2">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
+                        <!-- Icon for Active Lendings -->
                         <div class="me-3"><i class="bi bi-person-check fs-2 text-success"></i></div>
                         <div>
                             <div class="text-muted">Active Lendings</div>
+                            <!-- Display active lendings count -->
                             <div class="fs-4 fw-bold">{{ active_lendings }}</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Total Amount Lent card -->
         <div class="col-md-4 mb-2">
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
+                        <!-- Icon for Total Amount Lent -->
                         <div class="me-3"><i class="bi bi-currency-dollar fs-2 text-info"></i></div>
                         <div>
                             <div class="text-muted">Total Amount Lent</div>
+                            <!-- Display total amount formatted with 2 decimals -->
                             <div class="fs-4 fw-bold">৳{{ total_amount|floatformat:2 }}</div>
                         </div>
                     </div>
@@ -62,26 +85,7 @@
         </div>
     </div>
 
-    <!-- SEARCH BAR START -->
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-center">
-            <form method="get" class="d-flex w-50">
-                <input
-                    type="text"
-                    name="q"
-                    class="form-control me-2"
-                    placeholder="Search lendings by customer name"
-                    value="{{ query|default:'' }}"
-                >
-                <button type="submit" class="btn btn-primary">Search</button>
-                {% if query %}
-                <a href="{% url 'lending_dashboard' %}" class="btn btn-secondary ms-2">Clear</a>
-                {% endif %}
-            </form>
-        </div>
-    </div>
-    <!-- SEARCH BAR END -->
-
+    <!-- Table listing all lendings -->
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
@@ -89,23 +93,27 @@
                     <table class="table table-bordered align-middle">
                         <thead>
                             <tr>
-                                <th>Customer</th>
-                                <th>Amount</th>
-                                <th>Start Date</th>
-                                <th>Notes</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                                <th>Email Sent</th>
+                                <th>Customer</th>  <!-- Customer name -->
+                                <th>Amount</th>    <!-- Lending amount -->
+                                <th>Start Date</th> <!-- Lending start date -->
+                                <th>Notes</th>     <!-- Optional notes -->
+                                <th>Status</th>    <!-- Lending status -->
+                                <th>Actions</th>   <!-- Edit, Delete, Email actions -->
                             </tr>
                         </thead>
                         <tbody>
                             {% for l in lendings %}
                             <tr>
+                                <!-- Show customer name -->
                                 <td>{{ l.customer.name }}</td>
+                                <!-- Format and show amount -->
                                 <td>৳{{ l.amount|floatformat:2 }}</td>
+                                <!-- Format start date -->
                                 <td>{{ l.start_date|date:'Y-m-d' }}</td>
+                                <!-- Show notes or dash if empty -->
                                 <td>{{ l.notes|default:'-' }}</td>
                                 <td>
+                                    <!-- Show badge based on lending status -->
                                     {% if l.status == 'active' %}
                                     <span class="badge bg-success">Active</span>
                                     {% elif l.status == 'repaid' %}
@@ -115,23 +123,28 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'lending_update' l.pk %}" class="text-success me-2"><i
-                                            class="bi bi-pencil-square"></i></a>
-                                    <a href="{% url 'lending_delete' l.pk %}" class="text-danger"><i
-                                            class="bi bi-trash"></i></a>
-                                    <form action="{% url 'send_lending_email' l.pk %}" method="post"
-                                        style="display:inline;">
+                                    <!-- Edit lending link -->
+                                    <a href="{% url 'lending_update' l.pk %}" class="text-success me-2">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <!-- Delete lending link -->
+                                    <a href="{% url 'lending_delete' l.pk %}" class="text-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <!-- Form to send email related to lending -->
+                                    <form action="{% url 'send_lending_email' l.pk %}" method="post" style="display:inline;">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-info" title="Send Email"><i
-                                                class="bi bi-envelope"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-info" title="Send Email">
+                                            <i class="bi bi-envelope"></i>
+                                        </button>
                                     </form>
                                 </td>
                                 <td>{{ l.email_sent_count }}</td>
-
                             </tr>
                             {% empty %}
+                            <!-- Message when no lendings are found -->
                             <tr>
-                                <td colspan="7" class="text-center">No lendings found.</td>
+                                <td colspan="6" class="text-center">No lendings found.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -142,6 +155,8 @@
     </div>
 </div>
 {% endblock %}
+
 {% block extra_head %}
+<!-- Bootstrap Icons CSS CDN -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 {% endblock %}
