@@ -115,11 +115,11 @@
                                 <td>
                                     <!-- Show badge based on lending status -->
                                     {% if l.status == 'active' %}
-                                        <span class="badge bg-success">Active</span>
+                                    <span class="badge bg-success">Active</span>
                                     {% elif l.status == 'repaid' %}
-                                        <span class="badge bg-primary">Repaid</span>
+                                    <span class="badge bg-primary">Repaid</span>
                                     {% else %}
-                                        <span class="badge bg-danger">Overdue</span>
+                                    <span class="badge bg-danger">Overdue</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -139,6 +139,7 @@
                                         </button>
                                     </form>
                                 </td>
+                                <td>{{ l.email_sent_count }}</td>
                             </tr>
                             {% empty %}
                             <!-- Message when no lendings are found -->
