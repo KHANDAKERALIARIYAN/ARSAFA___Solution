@@ -1,19 +1,28 @@
 {% extends 'accounts/base.html' %}
+
 {% block title %}Delete Lending | ARSAFA SOLUTION{% endblock %}
+
 {% block header %}Delete Lending{% endblock %}
+
 {% block content %}
+<!-- Main container with margin top -->
 <div class="container mt-4">
+
+    <!-- Page heading -->
     <h2>Delete Lending</h2>
     
+    <!-- Display any messages passed to the template (e.g. success, error) -->
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
                 {{ message }}
+                <!-- Button to close alert -->
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
     {% endif %}
     
+    <!-- Card showing detailed information about the lending to be deleted -->
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Lending Information</h5>
@@ -23,22 +32,26 @@
             <p><strong>Start Date:</strong> {{ lending.start_date }}</p>
             <p><strong>Due Date:</strong> {{ lending.due_date }}</p>
             <p><strong>Status:</strong> {{ lending.get_status_display }}</p>
+            <!-- Show notes only if they exist -->
             {% if lending.notes %}
                 <p><strong>Notes:</strong> {{ lending.notes }}</p>
             {% endif %}
         </div>
     </div>
     
+    <!-- Section showing related POS bills or sales that will also be deleted -->
     {% if related_pos_bills or related_sales %}
         <div class="card mt-3">
             <div class="card-body">
                 <h5 class="card-title">Related Data to be Deleted</h5>
                 
+                <!-- Show POS bills if any -->
                 {% if related_pos_bills %}
                     <div class="alert alert-warning">
                         <h6><i class="fas fa-exclamation-triangle"></i> Associated POS Bills ({{ related_pos_bills.count }})</h6>
                         <p class="mb-2">These POS bills will be permanently deleted:</p>
                         <ul class="list-unstyled">
+                            <!-- List each POS bill with details -->
                             {% for pos in related_pos_bills %}
                                 <li><small>• {{ pos.pos_number }} - ৳{{ pos.total|floatformat:2 }} ({{ pos.get_status_display }}) - {{ pos.date|date:'Y-m-d' }}</small></li>
                             {% endfor %}
@@ -46,6 +59,7 @@
                     </div>
                 {% endif %}
                 
+                <!-- Show sales records if any -->
                 {% if related_sales %}
                     <div class="alert alert-info">
                         <h6><i class="fas fa-info-circle"></i> Associated Sales ({{ related_sales.count }})</h6>
@@ -56,19 +70,25 @@
         </div>
     {% endif %}
     
+    <!-- Warning alert about irreversible action -->
     <div class="mt-3">
         <div class="alert alert-danger">
             <h6><i class="fas fa-exclamation-triangle"></i> Warning</h6>
             <p class="mb-0">This action cannot be undone. The lending record and all associated POS bills and sales will be permanently deleted.</p>
         </div>
-        <form method="post">{% csrf_token %}
+
+        <!-- Form to confirm deletion, submits POST request -->
+        <form method="post">
+            {% csrf_token %}
+            <!-- Confirm deletion button -->
             <button type="submit" class="btn btn-danger">
                 <i class="fas fa-trash"></i> Yes, delete lending and related data
             </button>
+            <!-- Cancel button, redirects back to lending dashboard -->
             <a href="{% url 'lending_dashboard' %}" class="btn btn-secondary">
                 <i class="fas fa-times"></i> Cancel
             </a>
         </form>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

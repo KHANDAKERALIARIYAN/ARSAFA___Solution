@@ -1,10 +1,15 @@
 {% extends 'accounts/base.html' %}
+
 {% block content %}
+<!-- Page-specific styles -->
 <style>
+  /* Background gradient for the whole body */
   body {
     background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
     min-height: 100vh;
   }
+
+  /* Container for the form, centered with max width and padding */
   .form-container {
     max-width: 800px;
     margin: 0 auto;
@@ -13,6 +18,8 @@
     padding: 2.5rem;
     box-shadow: 0 15px 35px rgba(0,0,0,0.1);
   }
+
+  /* Title styling for the form */
   .form-title {
     color: #2c3e50;
     font-size: 2.5rem;
@@ -21,9 +28,13 @@
     text-align: center;
     text-shadow: 0 2px 10px rgba(0,0,0,0.1);
   }
+
+  /* Margin bottom for each form group */
   .form-group {
     margin-bottom: 2rem;
   }
+
+  /* Label styling */
   .form-label {
     color: #2c3e50;
     font-size: 1.1rem;
@@ -32,6 +43,8 @@
     display: block;
     text-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
+
+  /* Input and textarea styling */
   .form-control {
     background: rgba(255,255,255,0.95);
     border: none;
@@ -41,25 +54,35 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
   }
+
+  /* Focus effect for inputs and textarea */
   .form-control:focus {
     background: white;
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     transform: translateY(-2px);
     outline: none;
   }
+
+  /* Placeholder text color */
   .form-control::placeholder {
     color: #6c757d;
   }
+
+  /* Minimum height and resize behavior for textarea */
   textarea.form-control {
     min-height: 200px;
     resize: vertical;
   }
+
+  /* Container for buttons, center aligned with gap */
   .button-group {
     display: flex;
     gap: 1rem;
     justify-content: center;
     margin-top: 2rem;
   }
+
+  /* Common button styling */
   .btn-custom {
     padding: 0.875rem 2rem;
     border-radius: 25px;
@@ -71,59 +94,80 @@
     border: none;
     cursor: pointer;
   }
+
+  /* Hover effect for buttons */
   .btn-custom:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     text-decoration: none;
   }
+
+  /* Save button specific colors */
   .btn-save {
     background: linear-gradient(135deg, #28a745, #20c997);
     color: white;
   }
+
+  /* Cancel button specific colors */
   .btn-cancel {
     background: linear-gradient(135deg, #6c757d, #495057);
     color: white;
   }
+
+  /* Margin between icon and text */
   .form-icon {
     margin-right: 0.5rem;
   }
 </style>
 
+<!-- Form container -->
 <div class="form-container">
+
+  <!-- Form title with conditional text and icon -->
   <h1 class="form-title">
     <i class="fas fa-sticky-note form-icon"></i>
     {% if note %}Edit Note{% else %}Add Note{% endif %}
   </h1>
   
+  <!-- Form starts here, method POST for sending data -->
   <form method="post">
-    {% csrf_token %}
+    {% csrf_token %}  <!-- CSRF token for security -->
     
+    <!-- Title input group -->
     <div class="form-group">
+      <!-- Label linked to title input -->
       <label for="{{ form.title.id_for_label }}" class="form-label">
         <i class="fas fa-heading form-icon"></i>{{ form.title.label }}
       </label>
+      <!-- Text input for note title, with placeholder and required attribute -->
       <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" 
              class="form-control" placeholder="Enter your note title..." 
              value="{{ form.title.value|default:'' }}" required>
     </div>
     
+    <!-- Content textarea group -->
     <div class="form-group">
+      <!-- Label linked to content textarea -->
       <label for="{{ form.content.id_for_label }}" class="form-label">
         <i class="fas fa-align-left form-icon"></i>{{ form.content.label }}
       </label>
+      <!-- Textarea for note content, with placeholder and required attribute -->
       <textarea name="{{ form.content.name }}" id="{{ form.content.id_for_label }}" 
                 class="form-control" placeholder="Write your note content here..." 
                 required>{{ form.content.value|default:'' }}</textarea>
     </div>
     
+    <!-- Buttons group -->
     <div class="button-group">
+      <!-- Submit button for saving the note -->
       <button type="submit" class="btn btn-custom btn-save">
         <i class="fas fa-save form-icon"></i>Save Note
       </button>
+      <!-- Cancel button, navigates back to note list -->
       <a href="{% url 'note_list' %}" class="btn btn-custom btn-cancel">
         <i class="fas fa-times form-icon"></i>Cancel
       </a>
     </div>
   </form>
 </div>
-{% endblock %} 
+{% endblock %}

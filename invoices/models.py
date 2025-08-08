@@ -160,206 +160,61 @@ class POS(models.Model):
         verbose_name_plural = 'POS'
 
 class POSItem(models.Model):
-   """
-   Individual Item in a Point of Sale Transaction
-   
-   Represents a single product purchased in a POS transaction. Each POS
-   transaction can have multiple items, and this model tracks the specific
-   details of each item including quantity, price, and total amount.
-   
-   Relationship:
-   - Belongs to one POS transaction (ForeignKey)
-   - References one Product (ForeignKey)
-   """
-   
-   # Reference to the parent POS transaction
-   # Enables cascading deletion - if POS is deleted, all items are deleted
-   pos = models.ForeignKey(POS, related_name='items', on_delete=models.CASCADE)
-   
-   # Reference to the product being sold
-   # SET_NULL allows keeping transaction records even if product is deleted
-   product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
-   
-   # Quantity of the product purchased
-   # PositiveIntegerField ensures only positive quantities
-   quantity = models.PositiveIntegerField()
-   
-   # Price per unit at the time of sale
-   # Stored separately from product price to maintain historical accuracy
-   unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-   
-   # Total amount for this line item (quantity * unit_price)
-   # Calculated and stored for performance and accuracy
-   total = models.DecimalField(max_digits=10, decimal_places=2)
+    pos = models.ForeignKey(POS, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    quantity = models.PositiveIntegerField()
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
 
-   def __str__(self):
-       """
-       String representation of the POS item
-       
-       Returns a descriptive string with product name and POS number for
-       easy identification in admin interface and debugging output.
-       """
-       return f"{self.product.name} - {self.pos.pos_number}"
+    def __str__(self):
+        return f"{self.product.name} - {self.pos.pos_number}"
 
-   def save(self, *args, **kwargs):
-       """
-       Custom save method to calculate total before saving
-       
-       This method ensures that the total amount for the item is always
-       correctly calculated as (quantity * unit_price) before saving.
-       
-       Args:
-           *args: Variable length argument list
-           **kwargs: Arbitrary keyword arguments
-       """
-       # Calculate total amount for this line item before saving
-       # This ensures data consistency and prevents calculation errors
-       self.total = self.quantity * self.unit_price
-       super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.total = self.quantity * self.unit_price
+        super().save(*args, **kwargs)
 
 class Invoice(models.Model):
-   """
-   Traditional Invoice Model for Deferred Payment Transactions
-   
-   Represents a formal invoice for transactions where payment is deferred.
-   This model is used for business-to-business transactions or customer
-   accounts where payment is not made immediately at the time of sale.
-   
-   Key Features:
-   - Due date tracking for payment terms
-   - Customer account integration
-   - Status tracking (paid/unpaid/overdue)
-   - Integration with POS system for hybrid workflows
-   """
-   
-   # Status choices for invoice management
-   # 'paid' - Payment has been received in full
-   # 'unpaid' - Payment is pending or deferred
-   # 'overdue' - Payment is past the due date
-   STATUS_CHOICES = [
-       ('paid', 'Paid'),
-       ('unpaid', 'Unpaid'),
-       ('overdue', 'Overdue'),
-   ]
+    STATUS_CHOICES = [
+        ('paid', 'Paid'),
+        ('unpaid', 'Unpaid'),
+        ('overdue', 'Overdue'),
+    ]
 
-   # Unique identifier for the invoice in INV-XXX format
-   # May also be POS-XXX for invoices generated from POS transactions
-   invoice_number = models.CharField(max_length=20, unique=True)  # INV-001 format
-   
-   # Reference to the customer account
-   # PROTECT prevents deletion of customers with active invoices
-   customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
-   
-   # Transaction date and payment due date
-   # Due date can be blank/NULL for immediate payment invoices
-   date = models.DateField(default=timezone.now)
-   due_date = models.DateField(blank=True, null=True)
-   
-   # Total amount of the invoice
-   # Calculated from sum of invoice items
-   amount = models.DecimalField(max_digits=10, decimal_places=2)
-   
-   # Current status of the invoice
-   # Controls payment tracking and overdue notifications
-   status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='unpaid')
-   
-   # Audit fields for tracking creation and modification times
-   created_at = models.DateTimeField(auto_now_add=True)
-   updated_at = models.DateTimeField(auto_now=True)
+    invoice_number = models.CharField(max_length=20, unique=True)  # INV-001 format
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    date = models.DateField(default=timezone.now)
+    due_date = models.DateField(blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='unpaid')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-   def __str__(self):
-       """
-       String representation of the invoice
-       
-       Returns the invoice number for easy identification in admin
-       interface and debugging output.
-       """
-       return self.invoice_number
+    def __str__(self):
+        return self.invoice_number
 
-   def is_pos_generated(self):
-       """
-       Check if this invoice was generated from a POS transaction
-       
-       Invoices can be generated automatically from paid POS transactions
-       to maintain accounting records. This method identifies such invoices.
-       
-       Returns:
-           bool: True if invoice number starts with 'POS-', False otherwise
-       """
-       return self.invoice_number.startswith('POS-')
-   
-   def get_pos_reference(self):
-       """
-       Get the POS reference if this invoice was generated from POS
-       
-       For invoices generated from POS transactions, this method returns
-       the POS number that can be used to reference the original transaction.
-       
-       Returns:
-           str or None: POS number if this is a POS-generated invoice, None otherwise
-       """
-       if self.is_pos_generated():
-           return self.invoice_number
-       return None
+    def is_pos_generated(self):
+        """Check if this invoice was generated from a POS transaction"""
+        return self.invoice_number.startswith('POS-')
+    
+    def get_pos_reference(self):
+        """Get the POS reference if this invoice was generated from POS"""
+        if self.is_pos_generated():
+            return self.invoice_number
+        return None
 
-   class Meta:
-       # Default ordering by date, most recent first
-       ordering = ['-date']
+    class Meta:
+        ordering = ['-date']
 
 class InvoiceItem(models.Model):
-   """
-   Individual Item in an Invoice
-   
-   Represents a single product or service listed in an invoice. Each invoice
-   can have multiple items, and this model tracks the specific details of
-   each item including quantity, price, and total amount.
-   
-   Relationship:
-   - Belongs to one Invoice (ForeignKey)
-   - References one Product (ForeignKey)
-   """
-   
-   # Reference to the parent invoice
-   # Enables cascading deletion - if invoice is deleted, all items are deleted
-   invoice = models.ForeignKey(Invoice, related_name='items', on_delete=models.CASCADE)
-   
-   # Reference to the product being invoiced
-   # SET_NULL allows keeping invoice records even if product is deleted
-   product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
-   
-   # Quantity of the product invoiced
-   # PositiveIntegerField ensures only positive quantities
-   quantity = models.PositiveIntegerField()
-   
-   # Price per unit at the time of invoicing
-   # Stored separately from product price to maintain historical accuracy
-   unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-   
-   # Total amount for this line item (quantity * unit_price)
-   # Calculated and stored for performance and accuracy
-   amount = models.DecimalField(max_digits=10, decimal_places=2)
+    invoice = models.ForeignKey(Invoice, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    quantity = models.PositiveIntegerField()
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
 
-   def __str__(self):
-       """
-       String representation of the invoice item
-       
-       Returns a descriptive string with product name and invoice number for
-       easy identification in admin interface and debugging output.
-       """
-       return f"{self.product.name} - {self.invoice.invoice_number}"
+    def __str__(self):
+        return f"{self.product.name} - {self.invoice.invoice_number}"
 
-   def save(self, *args, **kwargs):
-       """
-       Custom save method to calculate total before saving
-       
-       This method ensures that the total amount for the item is always
-       correctly calculated as (quantity * unit_price) before saving.
-       
-       Args:
-           *args: Variable length argument list
-           **kwargs: Arbitrary keyword arguments
-       """
-       # Calculate total amount for this line item before saving
-       # This ensures data consistency and prevents calculation errors
-       self.amount = self.quantity * self.unit_price
-       super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.amount = self.quantity * self.unit_price
+        super().save(*args, **kwargs) 
