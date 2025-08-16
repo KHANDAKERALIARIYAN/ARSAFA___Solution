@@ -370,7 +370,7 @@
             {% if summary.daily_sales_breakdown %}
             <small class="text-muted">
                 <span class="paid">Paid : ৳ {{ summary.daily_sales_breakdown.pos_paid|floatformat:2 }}</span> &nbsp;
-                <span class="unpaid">Unpaid : ৳ {{ summary.daily_sales_breakdown.pos_unpaid|floatformat:2 }}</span>
+                <span class="unpaid">Due : ৳ {{ summary.daily_sales_breakdown.pos_unpaid|floatformat:2 }}</span>
             </small>
             {% endif %}
         </div>
