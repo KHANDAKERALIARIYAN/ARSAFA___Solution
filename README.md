@@ -1,22 +1,23 @@
 # ARSAFA SOLUTION
 
-A Django-based ERP system for small and medium businesses, featuring admin login, inventory tracking, sales, POS, invoicing, customer management, lending, employee management, email reminders, and analytics dashboard.
+A complete business management system built with Django for small and medium businesses. It helps manage daily tasks such as inventory, sales, POS, invoices, customers, employees, lending, repayment reminders, business notes, and barcode scanning — all in one place.
 
 ---
 
 ## Features
 
-- **Admin Dashboard**: Centralized overview of sales, inventory, invoices, and key metrics.
-- **Inventory Management**: Track products, categories, stock levels, expiry dates, and low stock alerts.
-- **Sales & POS**: Manage sales, POS transactions (paid/unpaid), and daily/weekly sales analytics.
-- **Invoicing**: Create, edit, and track invoices with payment status and due dates.
-- **Customer Management**: Store customer info, purchase history, outstanding balances, and activity logs.
-- **Lending Module**: Track loans to customers, interest rates, due dates, and repayment status.
-- **Employee Info**: Manage employee records and access.
-- **Notes**: Take, view, update, and delete personal notes. Accessible from all pages via the navigation bar and dashboard quick access.
-- **Data Visualization**: Sales and inventory analytics using Chart.js (via CDN).
-- **Email Reminders**: (Planned) Send reminders for overdue invoices and lending.
-- **Data Management**: Admin commands to clear/reset data for testing or new deployments.
+- **Admin Dashboard**: Get a quick overview of sales, inventory, low stock & nearly expiry alerts, and other key business stats in one place
+- **Inventory Management**: Add, modify, search, and organize products by category, monitor stock levels, track expiry dates, and check total inventory valuation.
+- **Sales & POS**: Handle sales and POS transactions (both paid and unpaid), with access to complete sales history.
+- **Invoicing**: Easily create, edit, and track invoices with payment status and due dates.
+- **Customer Management**: Keep customer details, purchase history, total sales, and activity records organized. This will help us to implement the loyalty program later on.
+- **Employee Management**: Store and manage employee details, roles, and system access.
+- **Lending Module**: Manage customer loans, including interest rates, repayment schedules, and due dates.
+- **Email Reminders**: Automatically send reminders for overdue invoices and unpaid loans.
+- **Notes**: Create, edit, and delete personal notes, accessible from both the navigation bar and dashboard quick links.
+- **Barcode Scanner**: Quickly add products to inventory or select them at POS using barcode scanning.
+- **Sales & Reporting**: Visualize sales and inventory insights with interactive charts powered by Chart.js (via CDN).
+- **Data Management**: Use admin commands to clear/reset data for testing or new deployments.
 
 ---
 
