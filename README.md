@@ -29,6 +29,8 @@ A complete business management system built with Django for small and medium bus
 - **Recent Activities Feed:** Instantly view the latest actions (new invoices, payments, stock updates, new customers) for fast decision-making.
 - **Data Reset:** Admins can clear all business data (for testing or new deployments) with a single action.
 
+![alt_text](https://github.com/KHANDAKERALIARIYAN/ARSAFA___Solution/blob/ad4dc7a55f519e18de2480e1713794823a189d25/readme-assets/admin-dashboard.png)
+
 ### 2. Inventory Management
 - **Product Catalog:** Add, edit, and delete products with details like name, category, quantity, unit price, buying price, expiry date, input date, and barcode.
 - **Search, Filter, and Sort:** Find products quickly by name, category, or sort by price, expiry, or stock level.
