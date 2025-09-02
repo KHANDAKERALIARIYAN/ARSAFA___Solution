@@ -60,9 +60,20 @@
         </div>
     </div>
     <div class="row mb-3">
-        <div class="col-12 d-flex justify-content-end">
-            <form class="w-50">
-                <input type="text" class="form-control" placeholder="Search customers by name, email, or phone..." name="q" value="{{ request.GET.q }}">
+        <div class="col-12">
+            <form method="get" class="mb-3">
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" name="search" class="form-control" 
+                               placeholder="🔍 Search customers by name, email, or phone..." 
+                               value="{{ search_query }}">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
