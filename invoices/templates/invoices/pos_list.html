@@ -187,7 +187,6 @@ document.getElementById('posSearch').addEventListener('keyup', function() {
         let cells = row.getElementsByTagName('td');
         let found = false;
 
-        // Start search from the first cell
         for (let j = 0; j < cells.length; j++) {
             let cell = cells[j];
             if (cell && cell.textContent.toLowerCase().includes(searchText)) {
