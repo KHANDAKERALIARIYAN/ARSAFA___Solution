@@ -520,8 +520,7 @@
                             <small class="text-muted">Qty: {{ product.quantity }}</small>
                         </div>
                         <div class="text-end">
-                            <span class="quantity" style="color: #721c24;">{{ product.expiry_date|date:"M d, Y"
-                                }}</span>
+                            <span class="quantity" style="color: #721c24;">{{ product.expiry_date|date:"M d, Y" }}</span>
                             <br>
                             <small class="text-muted">
                                 {% with days_left=product.expiry_date|timeuntil %}
