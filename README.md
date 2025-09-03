@@ -24,7 +24,7 @@ A complete business management system built with Django for small and medium bus
 ## Detailed Feature Overview
 
 ### 1. Admin Dashboard
-- **Centralized Overview:** View today’s sales, pending invoices, low stock alerts, nearly expired items, customer credit balances, and more — all in one place.
+- **Centralized Overview:** View today’s sales, customer credit balances, low stock alerts, nearly expiring products and navigation bar — all in one place.
 - **Quick Navigation:** Access all major modules (Inventory, Sales, POS, Invoices, Customers, Lending, Employees) from dashboard cards.
 - **Alerts:** Alert notification will appear for low stock & nearly expiring producs.
 - **Data Reset:** Admins can clear all business data (for testing or new deployments) with a single action.
@@ -33,30 +33,23 @@ A complete business management system built with Django for small and medium bus
 
 ### 2. Inventory Management
 - **Product Catalog:** Add, edit, and delete products with details like name, category, quantity, unit price, buying price, expiry date, input date, and barcode.
-- **Search, Filter, and Sort:** Find products quickly by name, category, or sort by price, expiry, or stock level.
+- **Search, Filter, and Sort:** Find products quickly by name, category etc. and sort by price, expiry, or stock level etc.
 - **Low Stock Alerts:** Products below a configurable quantity threshold are highlighted and counted, helping prevent stockouts.
-- **Expiry Alerts:** Products nearing expiry (within 7 days) are flagged for timely action.
-- **Bulk Operations:** Use management commands to add random products or update product statuses in bulk.
-- **Admin Panel Integration:** Manage products via Django admin with advanced search and filtering.
+- **Expiry Alerts:** Products nearing expiry (within 7 days) are flagged for timely action. They appears in red color for better visibility.
 
 ![alt_text](https://github.com/KHANDAKERALIARIYAN/ARSAFA___Solution/blob/739e6b1090248d682cea1182ef302f2fdcdc89f7/readme-assets/inventory.png)
 
 ### 3. Sales & POS (Point of Sale)
-- **Sales Analytics Dashboard:** Visualize total sales, orders, paid/unpaid amounts, daily/weekly sales trends, and top-selling products.
 - **POS Transactions:** Create and manage sales directly at the point of sale, supporting both paid and unpaid transactions.
 - **Order Management:** Track all sales and POS orders, including detailed product breakdowns and customer associations.
-- **Top Products & Trends:** Identify best-selling products and monitor sales growth with interactive charts.
-- **Test Data Management:** Easily clear sales data for testing or demonstration purposes.
 
 ![alt_text](https://github.com/KHANDAKERALIARIYAN/ARSAFA___Solution/blob/739e6b1090248d682cea1182ef302f2fdcdc89f7/readme-assets/POS.png)
 
 ### 4. Invoicing
-- **Invoice List & Filtering:** View all invoices (manual and POS-generated), filter by status (paid, unpaid, overdue), and search by customer or number.
-- **Create/Edit Invoices:** Generate invoices for customers, set due dates, and update details as needed.
+- **Invoice List & Filtering:** View all invoices (manual and POS-generated), and search by customer or POS number.
+- **Create/Edit Invoices:** Generate invoices for customers, set due dates, and update details if needed.
 - **POS Integration:** POS transactions automatically generate corresponding invoices for seamless accounting.
-- **Payment Tracking:** Mark invoices as paid/unpaid, update statuses, and track due dates to manage cash flow.
-- **API Endpoints:** Fetch product prices and details by barcode for fast POS operations.
-- **Bulk Deletion:** Use management commands to clear invoice data in bulk.
+- **Payment Tracking:** Mark invoices as paid/due, update statuses, and track due dates to manage cash flow.
 
 ![alt_text](https://github.com/KHANDAKERALIARIYAN/ARSAFA___Solution/blob/739e6b1090248d682cea1182ef302f2fdcdc89f7/readme-assets/invoice.png)
 
@@ -70,7 +63,7 @@ A complete business management system built with Django for small and medium bus
 ![alt_text](https://github.com/KHANDAKERALIARIYAN/ARSAFA___Solution/blob/739e6b1090248d682cea1182ef302f2fdcdc89f7/readme-assets/customer.png)
 
 ### 6. Employee Management
-- **Employee Records:** Maintain employee details including name, NID, role, phone, salary, and joining date
+- **Employee Records:** Maintain employee details including name, NID, role, phone, salary, and joining date etc.
 - **Admin Integration:** Manage employees through Django Admin with full CRUD support.
 
 ![alt_text](https://github.com/KHANDAKERALIARIYAN/ARSAFA___Solution/blob/739e6b1090248d682cea1182ef302f2fdcdc89f7/readme-assets/employee.png)
@@ -102,18 +95,8 @@ A complete business management system built with Django for small and medium bus
 
 ### 11. Sales & Reporting
 - **Interactive Charts:** Visualize sales trends, inventory usage, revenue growth, and top-selling products using Chart.js (via CDN).
-- **Customizable Views:** Filter data by date range, product category, or payment status for deeper insights.
 - **Summary Cards:** Display key metrics such as total sales, pending payments, and stock levels in clear, visual cards.
 - **Decision Support:** Helps managers quickly identify performance gaps, best-selling products, and low-stock items.
-
-### 12. Data Management
-- **Management Commands:** Use Django’s command-line tools to reset, clear, or populate modules with sample data.
-- **Bulk Operations:** Perform large-scale updates, deletions, or test data generation efficiently.
-- **Safe Testing & Deployment:** Allows admins to maintain clean datasets for testing or prepare a fresh deployment without affecting live data.
-- **Data Integrity Checks:** Commands to verify data consistency across modules (inventory, sales, lending, customers).
-
-- **Universal Access:** Access the Notes feature from the main navigation bar or the admin dashboard quick access section.
-- **User-Friendly:** Clean interface for managing notes efficiently alongside other business modules.
 
 ---
 
